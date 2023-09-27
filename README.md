@@ -10,22 +10,22 @@ To deploy the demo via this automation you need:
 
 * A CDE Virtual Cluster in CDP Public Cloud AWS (Azure coming soon).
 * A working installation of Docker on your local machine.
-* Basic knowledge of CDE, Python, Airflow, and PySpark is recommended but not required. No code changes are required.
+* Basic knowledge of CDE, Python, Airflow, Iceberg and PySpark is recommended but not required. No code changes are required.
 
 ## Demo Content
 
-The Demo includes an Airflow DAG orchestrating two Spark Jobs in CDE. The first Spark Job loads fresh data into a staging table. The second Spark Job executes an Iceberg Merge Into into the target table.
+The Demo includes an Airflow DAG orchestrating three Spark Jobs in CDE. The first Spark Job loads fresh data into a staging table. The second Spark Job executes an Iceberg Merge Into into the target table. Finally, the third job performs some basic monitoring queries on Iceberg Metadata.
 
-The Airflow Job is designed to run every 10 minutes independently. At each run new random data is generated, then added to the staging table and finally loaded into the target table.
+The Airflow Job is designed to run every five minutes independently. At each run new random data is generated, then added to the staging table and finally loaded into the target table. The same target table is used so if left running the demo can show what happens to Iceberg Metadata overtime.
 
-A setup job is launched upon triggering the deployment script. However, this is not part of the demo track and is automatically removed when the setup is complete.
+Before the pipeline is executed, a setup job is launched upon triggering the deployment script. However, this job is not part of the demo track and is automatically removed when the setup is complete.
 
 When the demo is deployed you will have the following in your CDE Virtual Cluster:
 
-* Two CDE Spark Jobs: "staging_table" and "iceberg_mergeinto"
-* One CDE Airflow Job: "airflow_orchestration"
-* One CDE Files Resource: "cde_demo_files"
-* One CDE Docker Runtime Resource: "dex-spark-runtime-dbldatagen"
+* Three CDE Spark Jobs: "staging_table", "iceberg_mergeinto", "iceberg_metadata_queries".
+* One CDE Airflow Job: "airflow_orchestration".
+* One CDE Files Resource: "cde_demo_files".
+* One CDE Docker Runtime Resource: "dex-spark-runtime-dbldatagen".
 * The CDE CLI is pre-installed in the Docker container.
 
 ## Deployment Instructions
@@ -53,7 +53,7 @@ Run the autodeploy script with:
 ./autodeploy.sh dockerusername cdpworkloaduser
 ```
 
-You can follow progress in the terminal. The pipeline should deploy within three minutes. When the setup process is complete navigate to the CDE UI and validate that the demo has been deployed. By now the setup_job should have completed and the airflow_orchestration should be in process.
+Before running this be prepared to enter your Docker credentials in the terminal. Then, you can follow progress in the terminal output. The pipeline should deploy within three minutes. When setup is complete navigate to the CDE UI and validate that the demo has been deployed. By now the setup_job should have completed and the airflow_orchestration job should already be in process.
 
 #### 2. autodestroy.sh
 
@@ -62,6 +62,8 @@ When you are done run this script to tear down the pipeline:
 ```
 ./autodestroy.sh cdpworkloaduser
 ```
+
+The script can also be run when the autodeploy script is still in process. It will stop and completely destroy the CDE Resources and Jobs deployed until then.
 
 #### Important Information
 
@@ -75,8 +77,6 @@ When you are done run this script to tear down the pipeline:
 ## Summary
 
 You can deploy an end to end CDE Demo with the provided automation. The demo executes a small ETL pipeline including Iceberg, Spark and Airflow.
-
-## Next Steps
 
 ### CDE Relevant Projects
 
