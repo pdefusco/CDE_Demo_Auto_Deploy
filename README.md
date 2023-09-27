@@ -82,7 +82,7 @@ You can deploy an end to end CDE Demo with the provided automation. The demo exe
 
 If you are exploring or using CDE today you may find the following tutorials relevant:
 
-* [CDE 1.19 Workshop HOL](https://github.com/pdefusco/CDE119_ACE_WORKSHOP): The HOL is typically a three to four-hour event organized by Cloudera for CDP customers and prospects, where a small technical team from Cloudera Solutions Engineering provides cloud infrastructure for all participants and guides them through the completion of the labs with the help of presentations and open discussions. Recommended for CDE Services on versions up to 1.19.
+* [CDE 1.19 Workshop HOL](https://github.com/pdefusco/CDE119_ACE_WORKSHOP): The HOL is typically a three to four-hour event organized by Cloudera for CDP customers and prospects, where a small technical team from Cloudera Solutions Engineering provides cloud infrastructure for all participants and guides them through the completion of the labs with the help of presentations and open discussions.
 
 * [Spark 3 & Iceberg](https://github.com/pdefusco/Spark3_Iceberg_CML): A quick intro of Time Travel Capabilities with Spark 3.
 
