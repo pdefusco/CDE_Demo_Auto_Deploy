@@ -22,10 +22,10 @@ Before the pipeline is executed, a setup job is launched upon triggering the dep
 
 When the demo is deployed you will have the following in your CDE Virtual Cluster:
 
-* Three CDE Spark Jobs: "staging_table", "iceberg_mergeinto", "iceberg_metadata_queries".
-* One CDE Airflow Job: "airflow_orchestration".
-* One CDE Files Resource: "cde_demo_files".
-* One CDE Docker Runtime Resource: "dex-spark-runtime-dbldatagen".
+* Three CDE Spark Jobs: ```staging_table```, ```iceberg_mergeinto```, ```iceberg_metadata_queries```.
+* One CDE Airflow Job: ```airflow_orchestration```.
+* One CDE Files Resource: ```cde_demo_files```.
+* One CDE Docker Runtime Resource: ```dex-spark-runtime-dbldatagen```.
 * The CDE CLI is pre-installed in the Docker container.
 
 ## Deployment Instructions
