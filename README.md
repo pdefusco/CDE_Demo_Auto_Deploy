@@ -4,6 +4,17 @@
 
 This git repository hosts the automation for a CDE Demo that includes Spark, Airflow and Iceberg. The Demo is deployed and removed in your Virtual Cluster within minutes.
 
+## Table of Contents
+
+* [Requirements]()
+* [Demo Content]()
+* [Deployment Instructions]()
+  * [1. autodeploy.sh]()
+  * [2. autodestroy.sh]()
+  * [Important Information]()
+* [Summary]()
+* [CDE Relevant Projects]()
+
 ## Requirements
 
 To deploy the demo via this automation you need:
@@ -78,7 +89,7 @@ The script can also be run when the autodeploy script is still in process. It wi
 
 You can deploy an end to end CDE Demo with the provided automation. The demo executes a small ETL pipeline including Iceberg, Spark and Airflow.
 
-### CDE Relevant Projects
+## CDE Relevant Projects
 
 If you are exploring or using CDE today you may find the following tutorials relevant:
 
