@@ -4,16 +4,18 @@
 
 This git repository hosts the automation for a CDE Demo that includes Spark, Airflow and Iceberg. The Demo is deployed and removed in your Virtual Cluster within minutes.
 
+
 ## Table of Contents
 
-* [Requirements]()
-* [Demo Content]()
-* [Deployment Instructions]()
-  * [1. autodeploy.sh]()
-  * [2. autodestroy.sh]()
-  * [Important Information]()
-* [Summary]()
-* [CDE Relevant Projects]()
+* [Requirements](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#requirements)
+* [Demo Content](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#demo-content)
+* [Deployment Instructions](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#deployment-instructions)
+  * [1. Important Information](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#1-autodeploysh)
+  * [2. autodeploy.sh](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#2-autodestroysh)
+  * [3. autodestroy.sh](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#important-information)
+* [Summary](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#summary)
+* [CDE Relevant Projects](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#cde-relevant-projects)
+
 
 ## Requirements
 
@@ -22,6 +24,7 @@ To deploy the demo via this automation you need:
 * A CDE Virtual Cluster in CDP Public Cloud AWS (Azure coming soon).
 * A working installation of Docker on your local machine.
 * Basic knowledge of CDE, Python, Airflow, Iceberg and PySpark is recommended but not required. No code changes are required.
+
 
 ## Demo Content
 
@@ -39,6 +42,7 @@ When the demo is deployed you will have the following in your CDE Virtual Cluste
 * One CDE Docker Runtime Resource: ```dex-spark-runtime-dbldatagen```.
 * The CDE CLI is pre-installed in the Docker container.
 
+
 ## Deployment Instructions
 
 The automation is provided in a Docker container. First, pull the docker container and run it:
@@ -48,7 +52,9 @@ docker pull pauldefusco/cde_demo_auto_deploy
 docker run -it pauldefusco/cde_demo_auto_deploy
 ```
 
-Then add your CDE Virtual Cluster to the CDE CLI configuration file. To do so, paste your CDE Virtual Cluster's Jobs API URL at line 2.
+You will be automatically logged into the container as ```cdeuser```. Run the remaining commands from the container.
+
+Add your CDE Virtual Cluster to the CDE CLI configuration file. To do so, paste your CDE Virtual Cluster's Jobs API URL at line 2.
 
 ```
 vi ~/.cde/config.yaml
@@ -56,7 +62,16 @@ vi ~/.cde/config.yaml
 
 Next open the Airflow DAG and edit the username at line 50. Put your CDP Workload User here.
 
-#### 1. autodeploy.sh
+#### 1. Important Information
+
+* Each generated Iceberg Table, CDE Job and Resource will be prefixed with your CDP Workload Username. Multiple users can deploy the demo in the same CDE Virtual Cluster as long as they use different credentials.
+* Each user can deploy the demo at most once in the same CDE Virtual Cluster.
+* All CDE Jobs and Resources are deleted from the CDE Virtual Cluster upon execution of the "autodestroy.sh" script.
+* Currently Deployment is limited to AWS CDE Services but Azure and Private Cloud will be added soon.
+* The entire pipeline is executed upon deployment. No jobs need to be manually triggered upon deployment.
+* **Known limitation**: when the pipeline is deployed for the first time the DAG is run twice. Therefore, in the very first run you will see a duplicate job in the Job Runs page.
+
+#### 2. autodeploy.sh
 
 Run the autodeploy script with:
 
@@ -66,7 +81,7 @@ Run the autodeploy script with:
 
 Before running this be prepared to enter your Docker credentials in the terminal. Then, you can follow progress in the terminal output. The pipeline should deploy within three minutes. When setup is complete navigate to the CDE UI and validate that the demo has been deployed. By now the setup_job should have completed and the airflow_orchestration job should already be in process.
 
-#### 2. autodestroy.sh
+#### 3. autodestroy.sh
 
 When you are done run this script to tear down the pipeline:
 
@@ -74,16 +89,8 @@ When you are done run this script to tear down the pipeline:
 ./autodestroy.sh cdpworkloaduser
 ```
 
-The script can also be run when the autodeploy script is still in process. It will stop and completely destroy the CDE Resources and Jobs deployed until then.
+The script can also be run when the "autodeploy" script is still in process. It will stop and completely destroy the CDE Resources and Jobs deployed until then.
 
-#### Important Information
-
-* Each generated Iceberg Table, CDE Job and Resource will be prefixed with your CDP Workload Username. Multiple users can deploy the demo in the same CDE Virtual Cluster as long as they use different credentials.
-* Each user can deploy the demo at most once in the same CDE Virtual Cluster.
-* All CDE Jobs and Resources are deleted from the CDE Virtual Cluster upon execution of the "autodestroy.sh" script.
-* Currently Deployment is limited to AWS CDE Services but Azure and Private Cloud will be added soon.
-* The entire pipeline is executed upon deployment. No jobs need to be manually triggered upon deployment.
-* **Known limitation**: when the pipeline is deployed for the first time the DAG is run twice. Therefore, in the very first run you will see a duplicate job in the Job Runs page.
 
 ## Summary
 
