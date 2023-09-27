@@ -62,6 +62,20 @@ vi ~/.cde/config.yaml
 
 Next open the Airflow DAG and edit the username at line 50. Put your CDP Workload User here.
 
+<pre>
+# Airflow DAG
+from datetime import datetime, timedelta
+from dateutil import parser
+from airflow import DAG
+from cloudera.cdp.airflow.operators.cde_operator import CDEJobRunOperator
+from airflow.operators.python import PythonOperator
+from airflow.operators.dummy_operator import DummyOperator
+from airflow.operators.bash import BashOperator
+from airflow.models.param import Param
+
+<b>username = "cdpworkloaduser"</b> # Enter your workload username here
+</pre>
+
 #### 1. Important Information
 
 * Each generated Iceberg Table, CDE Job and Resource will be prefixed with your CDP Workload Username.
