@@ -60,7 +60,7 @@ Add your CDE Virtual Cluster to the CDE CLI configuration file. To do so, paste 
 vi ~/.cde/config.yaml
 ```
 
-Next open the Airflow DAG and edit the username at line 50. Put your CDP Workload User here.
+Next open the Airflow file ```airfloe_DAG.py``` located in the ```CDE_Demo/airflow directory``` and edit the username at line 50 by adding your CDP Workload Username here.
 
 <pre>
 # Airflow DAG
