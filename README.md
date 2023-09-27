@@ -53,7 +53,7 @@ Run the autodeploy script with:
 ./autodeploy.sh dockerusername cdpworkloaduser
 ```
 
-You can follow progress in the terminal. The pipeline should deploy within 3 minutes. When the setup process is complete navigate to the CDE UI and validate that the demo has been deployed.
+You can follow progress in the terminal. The pipeline should deploy within three minutes. When the setup process is complete navigate to the CDE UI and validate that the demo has been deployed. By now the setup_job should have completed and the airflow_orchestration should be in process.
 
 #### 2. autodestroy.sh
 
