@@ -10,9 +10,9 @@ This git repository hosts the automation for a CDE Demo that includes Spark, Air
 * [Requirements](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#requirements)
 * [Demo Content](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#demo-content)
 * [Deployment Instructions](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#deployment-instructions)
-  * [1. Important Information](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#1-autodeploysh)
-  * [2. autodeploy.sh](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#2-autodestroysh)
-  * [3. autodestroy.sh](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#important-information)
+  * [1. Important Information](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#1-important-information)
+  * [2. autodeploy.sh](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#2-autodeploysh)
+  * [3. autodestroy.sh](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#3-autodestroysh)
 * [Summary](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#summary)
 * [CDE Relevant Projects](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#cde-relevant-projects)
 
