@@ -64,7 +64,8 @@ Next open the Airflow DAG and edit the username at line 50. Put your CDP Workloa
 
 #### 1. Important Information
 
-* Each generated Iceberg Table, CDE Job and Resource will be prefixed with your CDP Workload Username. Multiple users can deploy the demo in the same CDE Virtual Cluster as long as they use different credentials.
+* Each generated Iceberg Table, CDE Job and Resource will be prefixed with your CDP Workload Username.
+* Multiple users can deploy the demo in the same CDE Virtual Cluster as long as they use different credentials.
 * Each user can deploy the demo at most once in the same CDE Virtual Cluster.
 * All CDE Jobs and Resources are deleted from the CDE Virtual Cluster upon execution of the "autodestroy.sh" script.
 * Currently Deployment is limited to AWS CDE Services but Azure and Private Cloud will be added soon.
@@ -88,8 +89,6 @@ When you are done run this script to tear down the pipeline:
 ```
 ./autodestroy.sh cdpworkloaduser
 ```
-
-The script can also be run when the "autodeploy" script is still in process. It will stop and completely destroy the CDE Resources and Jobs deployed until then.
 
 
 ## Summary
