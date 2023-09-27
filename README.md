@@ -72,7 +72,7 @@ The script can also be run when the autodeploy script is still in process. It wi
 * All CDE Jobs and Resources are deleted from the CDE Virtual Cluster upon execution of the "autodestroy.sh" script.
 * Currently Deployment is limited to AWS CDE Services but Azure and Private Cloud will be added soon.
 * The entire pipeline is executed upon deployment. No jobs need to be manually triggered upon deployment.
-* *Known limitation*: when the pipeline is deployed for the first time the DAG is run twice. Therefore, in the very first run you will have duplicate jobs.
+* **Known limitation**: when the pipeline is deployed for the first time the DAG is run twice. Therefore, in the very first run you will see a duplicate job in the Job Runs page.
 
 ## Summary
 
