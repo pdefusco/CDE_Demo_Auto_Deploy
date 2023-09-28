@@ -46,7 +46,6 @@ from os.path import exists
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 from pyspark.sql.functions import lit
-from utils import *
 
 ## CDE PROPERTIES
 config = configparser.ConfigParser()
