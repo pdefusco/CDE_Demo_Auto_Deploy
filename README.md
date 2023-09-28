@@ -81,7 +81,7 @@ from airflow.models.param import Param
 * Each generated Iceberg Table, CDE Job and Resource will be prefixed with your CDP Workload Username.
 * Multiple users can deploy the demo in the same CDE Virtual Cluster as long as they use different credentials.
 * Each user can deploy the demo at most once in the same CDE Virtual Cluster.
-* All CDE Jobs and Resources are deleted from the CDE Virtual Cluster upon execution of the "autodestroy.sh" script.
+* All Iceberg tables, CDE Jobs and Resources are deleted from the CDE Virtual Cluster upon execution of the "autodestroy.sh" script.
 * Currently Deployment is limited to AWS CDE Services but Azure and Private Cloud will be added soon.
 * The entire pipeline is executed upon deployment. No jobs need to be manually triggered upon deployment.
 * **Known limitation**: when the pipeline is deployed for the first time the DAG is run twice. Therefore, in the very first run you will see a duplicate job in the Job Runs page.
