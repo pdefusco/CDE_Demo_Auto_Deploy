@@ -74,7 +74,7 @@ spark = SparkSession \
 
 try:
     print("DROP DB CASCADE: {}".format(dbname))
-    spark.sql("DROP DATABASE IF EXSISTS {} CASCADE".format(dbname))
+    spark.sql("DROP DATABASE IF EXISTS {} CASCADE".format(dbname))
 except Exception as e:
     print("DROP {} DB UNSUCCESSFUL".format(dbname))
     print('\n')

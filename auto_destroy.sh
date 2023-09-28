@@ -35,8 +35,8 @@ do
   ((n=$n+1))
 done
 echo "Delete cleanup job cleanup-"$cde_user
-cde job run --name cleanup-$cde_user
-echo "Delete resource cde_demo_files"
+cde job delete --name cleanup-$cde_user
+echo "Delete resource cde_demo_files-"$cde_user
 cde resource delete --name cde_demo_files-$cde_user
-echo "Delete resource cde_airflow_files"
+echo "Delete resource cde_airflow_files-"$cde_user
 cde resource delete --name cde_airflow_files-$cde_user

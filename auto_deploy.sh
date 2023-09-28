@@ -56,12 +56,12 @@ echo "Creating Airflow File Resource Dependency"
 echo $cde_user >> username.conf
 echo "Creating Airflow Resource cde_airflow_files-"$cde_user
 cde resource create --name cde_airflow_files-$cde_user
-echo "Uploading Airflow Dependency to Airflow Resourc cde_airflow_files-"$cde_user
+echo "Uploading Airflow Dependency to Airflow Resource cde_airflow_files-"$cde_user
 cde resource upload --name cde_airflow_files-$cde_user --local-path username.conf
 rm username.conf
 
 echo "Creating Airflow Job airflow_orchestration-"$cde_user
-cde job create --name airflow_orchestration-$cde_user --type airflow --mount-1-resource cde_demo_files-$cde_user --airflow-file-mount-1-resource cde_airflow_files  --dag-file airflow_DAG.py
+cde job create --name airflow_orchestration-$cde_user --type airflow --mount-1-resource cde_demo_files-$cde_user --airflow-file-mount-1-resource cde_airflow_files-$cde_user  --dag-file airflow_DAG.py
 
 # DELETE SETUP JOB
 echo "Delete Spark Job table_setup-"$cde_user

@@ -84,7 +84,7 @@ from airflow.models.param import Param
 * All Iceberg tables, CDE Jobs and Resources are deleted from the CDE Virtual Cluster upon execution of the "autodestroy.sh" script.
 * Currently Deployment is limited to AWS CDE Services but Azure and Private Cloud will be added soon.
 * The entire pipeline is executed upon deployment. No jobs need to be manually triggered upon deployment.
-* **Known limitation**: when the pipeline is deployed for the first time the DAG is run twice. Therefore, in the very first run you will see a duplicate job in the Job Runs page.
+* **Known limitation**: when the pipeline is deployed for the first time the DAG may run twice. Therefore, in the very first run you may see a duplicate job in the Job Runs page.
 
 #### 2. autodeploy.sh
 
