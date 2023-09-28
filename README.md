@@ -91,7 +91,7 @@ from airflow.models.param import Param
 Run the autodeploy script with:
 
 ```
-./autodeploy.sh dockerusername cdpworkloaduser
+./auto_deploy.sh dockerusername cdpworkloaduser
 ```
 
 Before running this be prepared to enter your Docker credentials in the terminal. Then, you can follow progress in the terminal output. The pipeline should deploy within three minutes. When setup is complete navigate to the CDE UI and validate that the demo has been deployed. By now the setup_job should have completed and the airflow_orchestration job should already be in process.
@@ -101,7 +101,7 @@ Before running this be prepared to enter your Docker credentials in the terminal
 When you are done run this script to tear down the pipeline:
 
 ```
-./autodestroy.sh cdpworkloaduser
+./auto_destroy.sh cdpworkloaduser
 ```
 
 
