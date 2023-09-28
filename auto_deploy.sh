@@ -55,9 +55,9 @@ cde job create --name iceberg_metadata_queries-$cde_user --type spark --mount-1-
 echo "Creating Airflow File Resource Dependency"
 echo $cde_user >> username.conf
 echo "Creating Airflow Resource cde_airflow_files-"$cde_user
-cde resource create --name cde_airflow_files
+cde resource create --name cde_airflow_files-$cde_user
 echo "Uploading Airflow Dependency to Airflow Resourc cde_airflow_files-"$cde_user
-cde resource upload --name cde_airflow_files --local-path username.conf
+cde resource upload --name cde_airflow_files-$cde_user --local-path username.conf
 rm username.conf
 
 echo "Creating Airflow Job airflow_orchestration-"$cde_user

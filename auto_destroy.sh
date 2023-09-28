@@ -39,4 +39,4 @@ cde job run --name cleanup-$cde_user
 echo "Delete resource cde_demo_files"
 cde resource delete --name cde_demo_files-$cde_user
 echo "Delete resource cde_airflow_files"
-cde resource delete --name cde_airflow_files
+cde resource delete --name cde_airflow_files-$cde_user
