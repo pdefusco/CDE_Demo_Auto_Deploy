@@ -47,7 +47,7 @@ from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.bash import BashOperator
 from airflow.models.param import Param
 
-username = "cdpworkloaduser" # Enter your workload username here
+username = "pauldefusco" # Enter your workload username here
 dag_name = "CDE_Demo_"+username
 
 print("Using DAG Name: {}".format(dag_name))
