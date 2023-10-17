@@ -80,7 +80,7 @@ spark = SparkSession \
 #---------------------------------------------------
 
 try:
-    spark.sql("SELECT * FROM SPARKGEN_pdefusco.CAR_SALES_pdefusco.history").show()
+    spark.sql("SELECT * FROM {0}.CAR_SALES_{1}.history".format(dbname, username)).show()
 except Exception as e:
     print(f'caught {type(e)}: e')
     print("Query did not run Successfully")
@@ -96,7 +96,7 @@ QUERY = "WITH Ranked_Entries AS (\
         timestamp, \
         ROW_NUMBER() OVER(PARTITION BY latest_schema_id ORDER BY timestamp DESC) as row_num\
     FROM \
-        SPARKGEN_pdefusco.CAR_SALES_pdefusco.metadata_log_entries\
+        {0}.CAR_SALES_{1}.metadata_log_entries\
     WHERE \
         latest_schema_id IS NOT NULL\
 )\
@@ -109,7 +109,7 @@ FROM \
 WHERE \
     row_num = 1\
 ORDER BY \
-    latest_schema_id DESC;"
+    latest_schema_id DESC;".format(dbname, username)
 
 print(QUERY)
 
@@ -120,7 +120,7 @@ except Exception as e:
     print("Query did not run Successfully")
 
 print("ALL METADATA LOG ENTRIES")
-QUERY = "SELECT * FROM SPARKGEN_pdefusco.CAR_SALES_pdefusco.metadata_log_entries;"
+QUERY = "SELECT * FROM {0}.CAR_SALES_{1}.metadata_log_entries;".format(dbname, username)
 print(QUERY)
 
 try:
@@ -138,7 +138,7 @@ QUERY = "SELECT \
             snapshot_id,\
             summary['added-records'] AS added_records\
         FROM \
-            SPARKGEN_pdefusco.CAR_SALES_pdefusco.snapshots;"
+            {0}.CAR_SALES_{1}.snapshots;".format(dbname, username)
 
 try:
     spark.sql(QUERY).show()
@@ -156,12 +156,12 @@ QUERY = "SELECT \
             COUNT(*) AS operation_count,\
             DATE(committed_at) AS date\
         FROM \
-            SPARKGEN_pdefusco.CAR_SALES_pdefusco.snapshots\
+            {0}.CAR_SALES_{1}.snapshots\
         GROUP BY \
             operation, \
             DATE(committed_at)\
         ORDER BY \
-            date;"
+            date;".format(dbname, username)
 
 try:
     spark.sql(QUERY).show()
@@ -170,7 +170,7 @@ except Exception as e:
     print("Query did not run Successfully")
 
 print("QUERY ALL SNAPSHOTS")
-QUERY = "SELECT * FROM SPARKGEN_pdefusco.CAR_SALES_pdefusco.snapshots;"
+QUERY = "SELECT * FROM {0}.CAR_SALES_{1}.snapshots;".format(dbname, username)
 
 try:
     spark.sql(QUERY).show()

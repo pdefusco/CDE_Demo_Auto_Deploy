@@ -1,5 +1,5 @@
 #****************************************************************************
-# (C) Cloudera, Inc. 2020-2022
+# (C) Cloudera, Inc. 2020-2023
 #  All rights reserved.
 #
 #  Applicable Open Source License: GNU Affero General Public License v3.0
@@ -37,63 +37,46 @@
 # #  Author(s): Paul de Fusco
 #***************************************************************************/
 
-# Airflow DAG
-from datetime import datetime, timedelta
-from dateutil import parser
-from airflow import DAG
-from cloudera.cdp.airflow.operators.cde_operator import CDEJobRunOperator
-from airflow.operators.python import PythonOperator
-from airflow.operators.dummy_operator import DummyOperator
-from airflow.operators.bash import BashOperator
-from airflow.models.param import Param
+import random
+import configparser
+import json
+import sys
+import os
+from os.path import exists
+from pyspark.sql import SparkSession
+import pyspark.sql.functions as F
+from pyspark.sql.functions import lit
 
-username = "pauldefusco" # Enter your workload username here
-dag_name = "CDE_Demo_"+username
+## CDE PROPERTIES
+config = configparser.ConfigParser()
+config.read('/app/mount/parameters.conf')
+data_lake_name=config.get("general","data_lake_name")
+username=config.get("general","username")
 
-print("Using DAG Name: {}".format(dag_name))
+print("\nRunning as Username: ", username)
 
-default_args = {
-        'owner':username,
-        'start_date': datetime(2023,1,1,1),
-        'depends_on_past': False,
-        'retries':1,
-        'schedule_interval':'*/5 * * * *', #timedelta(minutes=5)
-        'retry_delay': timedelta(minutes=15),
-        'end_date': datetime(2025,1,1,1)
-        }
+dbname = "CDE_DEMO_{}".format(username)
 
-airflow_dag = DAG(
-        dag_name,
-        default_args=default_args,
-        catchup=False,
-        schedule_interval='*/5 * * * *',
-        is_paused_upon_creation=False
-        )
+print("\nUsing DB Name: ", dbname)
 
-start = DummyOperator(
-        task_id="start",
-        dag=airflow_dag
-)
+#---------------------------------------------------
+#               CREATE SPARK SESSION WITH ICEBERG
+#---------------------------------------------------
 
-staging_step = CDEJobRunOperator(
-        task_id='create-staging-table',
-        dag=airflow_dag,
-        job_name='create_staging_table-'+username, #Must match name of CDE Spark Job in the CDE Jobs UI
-        trigger_rule='all_success',
-        )
+spark = SparkSession \
+    .builder \
+    .appName("ICEBERG LOAD") \
+    .config("spark.sql.catalog.spark_catalog", "org.apache.iceberg.spark.SparkSessionCatalog")\
+    .config("spark.sql.catalog.spark_catalog.type", "hive")\
+    .config("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")\
+    .config("spark.kubernetes.access.hadoopFileSystems", data_lake_name)\
+    .getOrCreate()
 
-mergeinto_step = CDEJobRunOperator(
-        task_id='iceberg-merge-into',
-        dag=airflow_dag,
-        job_name='iceberg_mergeinto-'+username, #Must match name of CDE Spark Job in the CDE Jobs UI
-        trigger_rule='all_success',
-        )
-
-iceberg_metadata_step = CDEJobRunOperator(
-        task_id='iceberg-metadata-queries',
-        dag=airflow_dag,
-        job_name='iceberg_metadata_queries-'+username, #Must match name of CDE Spark Job in the CDE Jobs UI
-        trigger_rule='all_success',
-        )
-
-start >> staging_step >> mergeinto_step >> iceberg_metadata_step
+try:
+    print("DROP DB CASCADE: {}".format(dbname))
+    spark.sql("DROP DATABASE IF EXISTS {} CASCADE".format(dbname))
+except Exception as e:
+    print("DROP {} DB UNSUCCESSFUL".format(dbname))
+    print('\n')
+    print(f'caught {type(e)}: e')
+    print(e)

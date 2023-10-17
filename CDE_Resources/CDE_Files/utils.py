@@ -144,3 +144,65 @@ class DataGen:
         df = testDataSpec.build()
 
         return df
+
+    def loan_gen(x, y, z, partitions_num=10, row_count = 100000, unique_vals=100000, display_option=True):
+        """
+        Method to create Loan DF
+        Data modeled after Loan Kaggle Dataset: https://www.kaggle.com/datasets/burak3ergun/loan-data-set/
+        Columns:
+            Loan_ID,
+            Gender,
+            Married,
+            Dependents,
+            Education,
+            Self_Employed,
+            ApplicantIncome,
+            CoapplicantIncome,
+            LoanAmount,
+            Loan_Amount_Term,
+            Credit_History,
+            Property_Area,
+            Loan_Status
+        """
+        from pyspark.sql.types import StructType, StructField, IntegerType, StringType
+
+        schema = StructType([
+            StructField("Loan_ID_base", IntegerType(), True),
+            StructField("Loan_ID", StringType(), True),
+            StructField("Gender", StringType(), True),
+            StructField("Married", StringType(), True),
+            StructField("Dependents", IntegerType(), True),
+            StructField("Education", StringType(), True),
+            StructField("Self_Employed", StringType(), True),
+            StructField("ApplicantIncome", IntegerType(), True),
+            StructField("CoapplicantIncome", IntegerType(), True),
+            StructField("LoanAmount", IntegerType(), True),
+            StructField("Loan_Amount_Term", IntegerType(), True),
+            StructField("Credit_History", IntegerType(), True),
+            StructField("Property_Area", StringType(), True),
+            StructField("Loan_Status", StringType(), True),
+        ])
+
+        testDataSpec = (
+            dg.DataGenerator(spark, name="loan_data", rows=row_count, partitions=partitions_num).withIdOutput()
+            .withColumn("Loan_ID_base", minValue=1, maxValue=row_count, step=1)
+            .withColumn("Loan_ID", prefix='LP00', baseColumn="Loan_ID_base")
+            .withColumn("Gender", values=["Male", "Female"],random=True)
+            .withColumn("Married", values=["Yes", "No"], random=True,distribution="normal")
+            .withColumn("Dependents", minValue=0, maxValue=3,random=True)
+            .withColumn("Education", values=["Graduate", "Not Graduate"], random=True)
+            .withColumn("Self_Employed", values=["Yes", "No"], random=True)
+            .withColumn("ApplicantIncome", minValue=1000, maxValue=100000, random=True)
+            .withColumn("CoapplicantIncome", minValue=1000, maxValue=100000,random=True, distribution="normal")
+            .withColumn("LoanAmount", minValue=10000, maxValue=1000000, random=True, distribution="normal")
+            .withColumn("Loan_Amount_Term", minValue=180, maxValue=520, step=180)
+            .withColumn("Credit_History", minValue=0, maxValue=1, random=True, distribution="normal")
+            .withColumn("Property_Area", values=["Urban", "Semiurban", "Rural"], random=True)
+            .withColumn("Loan_Status", values=["Y", "N"], random=True, distribution="normal")
+        )
+
+        df = testDataSpec.build()
+
+        df = df.drop("Loan_ID_base")
+
+        return df
