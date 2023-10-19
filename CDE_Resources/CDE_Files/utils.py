@@ -145,11 +145,11 @@ class DataGen:
 
         return df
 
-    def loan_gen(x, y, z, partitions_num=10, row_count = 100000, unique_vals=100000, display_option=True):
+    def loan_gen(self, x, y, z, partitions_num=10, row_count = 100000, unique_vals=100000, display_option=True):
         """
         Method to create Loan DF
         Data modeled after Loan Kaggle Dataset: https://www.kaggle.com/datasets/burak3ergun/loan-data-set/
-        Columns:
+        Attributes:
             Loan_ID,
             Gender,
             Married,
@@ -199,6 +199,91 @@ class DataGen:
             .withColumn("Credit_History", minValue=0, maxValue=1, random=True, distribution="normal")
             .withColumn("Property_Area", values=["Urban", "Semiurban", "Rural"], random=True)
             .withColumn("Loan_Status", values=["Y", "N"], random=True, distribution="normal")
+        )
+
+        df = testDataSpec.build()
+
+        df = df.drop("Loan_ID_base")
+
+        return df
+
+
+    def telco_gen(self, x, y, z, partitions_num=10, row_count = 100000, unique_vals=100000, display_option=True):
+        """
+        Method to create Telco DF
+        Data modeled after Telco Kaggle Dataset: https://www.kaggle.com/datasets/spscientist/telecom-data
+        Attributes:
+            state,
+            account_length,
+            area_code,
+            international_plan,
+            voice_mail_plan,
+            number_vmail_messages,
+            total_day_minutes,
+            total_day_calls,
+            total_day_charge,
+            total_eve_minutes,
+            total_eve_calls,
+            total_eve_charge,
+            total_night_minutes,
+            total_night_calls,
+            total_night_charge,
+            total_intl_minutes,
+            total_intl_calls,
+            total_intl_charge,
+            customer_service_calls,
+            churn
+        """
+        from pyspark.sql.types import StructType, StructField, IntegerType, StringType
+
+        schema = StructType([
+            StructField("state", StringType(), True),
+            StructField("account_length", IntegerType(), True),
+            StructField("area_code", StringType(), True),
+            StructField("international_plan", StringType(), True),
+            StructField("voice_mail_plan", StringType(), True),
+            StructField("number_vmail_messages", IntegerType(), True),
+            StructField("total_day_minutes", IntegerType(), True),
+            StructField("total_day_calls", IntegerType(), True),
+            StructField("total_day_charge", IntegerType(), True),
+            StructField("total_eve_minutes", IntegerType(), True),
+            StructField("total_eve_calls", IntegerType(), True),
+            StructField("total_eve_charge", IntegerType(), True),
+            StructField("total_night_minutes", IntegerType(), True),
+            StructField("total_night_calls", IntegerType(), True),
+            StructField("total_night_charge", IntegerType(), True),
+            StructField("total_intl_minutes", IntegerType(), True),
+            StructField("total_intl_calls", IntegerType(), True),
+            StructField("total_intl_charge", IntegerType(), True),
+            StructField("customer_service_calls", IntegerType(), True),
+            StructField("churn", StringType(), True),
+        ])
+
+        states = ["MA"]
+        area_codes = ["339", "351", "508", "617", "774", "781", "857", "978"]
+
+        testDataSpec = (
+            dg.DataGenerator(spark, name="telco_data", rows=row_count, partitions=partitions_num).withIdOutput()
+            .withColumn("state", values=states, random=True)
+            .withColumn("account_length", minValue=0, maxValue=3,random=True)
+            .withColumn("area_code", values=area_codes,random=True)
+            .withColumn("international_plan", values=["yes", "no"], random=True,distribution="normal")
+            .withColumn("voice_mail_plan", values=["yes", "no"], random=True,distribution="normal")
+            .withColumn("number_vmail_messages", minValue=0, maxValue=3,random=True)
+            .withColumn("total_day_minutes", minValue=0, maxValue=3,random=True)
+            .withColumn("total_day_calls", minValue=0, maxValue=3,random=True)
+            .withColumn("total_day_charge", minValue=0, maxValue=3,random=True)
+            .withColumn("total_eve_minutes", minValue=0, maxValue=3,random=True)
+            .withColumn("total_eve_calls", minValue=0, maxValue=3,random=True)
+            .withColumn("total_eve_charge", minValue=0, maxValue=3,random=True)
+            .withColumn("total_night_minutes", minValue=0, maxValue=3,random=True)
+            .withColumn("total_night_calls", minValue=0, maxValue=3,random=True)
+            .withColumn("total_night_charge", minValue=0, maxValue=3,random=True)
+            .withColumn("total_eve_charge", minValue=0, maxValue=3,random=True)
+            .withColumn("total_night_minutes", minValue=0, maxValue=3,random=True)
+            .withColumn("total_night_calls", minValue=0, maxValue=3,random=True)
+            .withColumn("total_night_charge", minValue=0, maxValue=3,random=True)
+            .withColumn("churn", values=["Y", "N"], random=True, distribution="normal")
         )
 
         df = testDataSpec.build()
