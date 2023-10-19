@@ -237,6 +237,7 @@ class DataGen:
         from pyspark.sql.types import StructType, StructField, IntegerType, StringType
 
         schema = StructType([
+            StructField("customer_id", StringType(), True),
             StructField("state", StringType(), True),
             StructField("account_length", IntegerType(), True),
             StructField("area_code", StringType(), True),
@@ -264,25 +265,26 @@ class DataGen:
 
         testDataSpec = (
             dg.DataGenerator(spark, name="telco_data", rows=row_count, partitions=partitions_num).withIdOutput()
+            .withColumn("customer_id", minValue=1, maxValue=row_count, step=1)
             .withColumn("state", values=states, random=True)
             .withColumn("account_length", minValue=0, maxValue=3,random=True)
             .withColumn("area_code", values=area_codes,random=True)
             .withColumn("international_plan", values=["yes", "no"], random=True,distribution="normal")
             .withColumn("voice_mail_plan", values=["yes", "no"], random=True,distribution="normal")
             .withColumn("number_vmail_messages", minValue=0, maxValue=3,random=True)
-            .withColumn("total_day_minutes", minValue=0, maxValue=3,random=True)
-            .withColumn("total_day_calls", minValue=0, maxValue=3,random=True)
-            .withColumn("total_day_charge", minValue=0, maxValue=3,random=True)
-            .withColumn("total_eve_minutes", minValue=0, maxValue=3,random=True)
-            .withColumn("total_eve_calls", minValue=0, maxValue=3,random=True)
-            .withColumn("total_eve_charge", minValue=0, maxValue=3,random=True)
-            .withColumn("total_night_minutes", minValue=0, maxValue=3,random=True)
-            .withColumn("total_night_calls", minValue=0, maxValue=3,random=True)
-            .withColumn("total_night_charge", minValue=0, maxValue=3,random=True)
-            .withColumn("total_eve_charge", minValue=0, maxValue=3,random=True)
-            .withColumn("total_night_minutes", minValue=0, maxValue=3,random=True)
-            .withColumn("total_night_calls", minValue=0, maxValue=3,random=True)
-            .withColumn("total_night_charge", minValue=0, maxValue=3,random=True)
+            .withColumn("total_day_minutes", minValue=0, maxValue=1440,random=True)
+            .withColumn("total_day_calls", minValue=0, maxValue=100,random=True)
+            .withColumn("total_day_charge", minValue=0, maxValue=1000,random=True)
+            .withColumn("total_eve_minutes", minValue=0, maxValue=360,random=True)
+            .withColumn("total_eve_calls", minValue=0, maxValue=50,random=True)
+            .withColumn("total_eve_charge", minValue=0, maxValue=500,random=True)
+            .withColumn("total_night_minutes", minValue=0, maxValue=360,random=True)
+            .withColumn("total_night_calls", minValue=0, maxValue=200,random=True)
+            .withColumn("total_night_charge", minValue=0, maxValue=36,random=True)
+            .withColumn("total_intl_minutes", minValue=0, maxValue=36,random=True)
+            .withColumn("total_intl_calls", minValue=0, maxValue=360,random=True)
+            .withColumn("total_intl_charge", minValue=0, maxValue=100,random=True)
+            .withColumn("customer_service_calls", minValue=0, maxValue=200,random=True)
             .withColumn("churn", values=["Y", "N"], random=True, distribution="normal")
         )
 

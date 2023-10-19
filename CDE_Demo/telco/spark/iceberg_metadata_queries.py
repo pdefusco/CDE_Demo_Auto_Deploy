@@ -96,7 +96,7 @@ QUERY = "WITH Ranked_Entries AS (\
         timestamp, \
         ROW_NUMBER() OVER(PARTITION BY latest_schema_id ORDER BY timestamp DESC) as row_num\
     FROM \
-        {0}.CAR_SALES_{1}.metadata_log_entries\
+        {0}.TELCO_{1}.metadata_log_entries\
     WHERE \
         latest_schema_id IS NOT NULL\
 )\
@@ -120,7 +120,7 @@ except Exception as e:
     print("Query did not run Successfully")
 
 print("ALL METADATA LOG ENTRIES")
-QUERY = "SELECT * FROM {0}.CAR_SALES_{1}.metadata_log_entries;".format(dbname, username)
+QUERY = "SELECT * FROM {0}.TELCO_{1}.metadata_log_entries;".format(dbname, username)
 print(QUERY)
 
 try:
@@ -156,7 +156,7 @@ QUERY = "SELECT \
             COUNT(*) AS operation_count,\
             DATE(committed_at) AS date\
         FROM \
-            {0}.CAR_SALES_{1}.snapshots\
+            {0}.TELCO_{1}.snapshots\
         GROUP BY \
             operation, \
             DATE(committed_at)\
@@ -170,7 +170,7 @@ except Exception as e:
     print("Query did not run Successfully")
 
 print("QUERY ALL SNAPSHOTS")
-QUERY = "SELECT * FROM {0}.CAR_SALES_{1}.snapshots;".format(dbname, username)
+QUERY = "SELECT * FROM {0}.TELCO_{1}.snapshots;".format(dbname, username)
 
 try:
     spark.sql(QUERY).show()

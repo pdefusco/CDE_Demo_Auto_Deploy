@@ -80,17 +80,17 @@ spark = SparkSession \
 # CREATE STAGING DATASET 1 WITH SOME TARGET ID'S
 #-----------------------------------------------------------------------------------
 
-print("SAMPLING ID'S FROM TARGET TABLE\n")
+print("SAMPLING CUSTOMER ID'S FROM TARGET TABLE\n")
 print("\n")
 
-ROW_PERCENT_car_sales_source_sample = random.randint(1,100)
+ROW_PERCENT_telco_source_sample = random.randint(1,100)
 
-print("SAMPLING {} PERCENT ROWS FROM TARGET TABLE".format(ROW_PERCENT_car_sales_source_sample))
+print("SAMPLING {} PERCENT ROWS FROM TARGET TABLE".format(ROW_PERCENT_telco_source_sample))
 
-car_sales_id_source_sample_df = spark.sql("SELECT ID FROM {0}.CAR_SALES_{1} TABLESAMPLE ({2} PERCENT)"\
-        .format(dbname, username, ROW_PERCENT_car_sales_source_sample))
+car_sales_id_source_sample_df = spark.sql("SELECT CUSTOMER_ID FROM {0}.TELCO_{1} TABLESAMPLE ({2} PERCENT)"\
+        .format(dbname, username, ROW_PERCENT_telco_source_sample))
 
-ROW_COUNT_car_sales_gen = car_sales_id_source_sample_df.count()
+ROW_COUNT_telco_gen = telco_id_source_sample_df.count()
 
 dg = DataGen(spark, username)
 
@@ -107,15 +107,15 @@ def check_partitions(partitions):
     return partitions
   return partitions
 
-UNIQUE_VALS_car_sales_gen = random.randint(500, ROW_COUNT_car_sales_gen-1)
-PARTITIONS_NUM_car_sales_gen = round(ROW_COUNT_car_sales_gen / UNIQUE_VALS_car_sales_gen)
-PARTITIONS_NUM_car_sales_gen = check_partitions(PARTITIONS_NUM_car_sales_gen)
+UNIQUE_VALS_telco_gen = random.randint(500, ROW_COUNT_telco_gen-1)
+PARTITIONS_NUM_telco_gen = round(ROW_COUNT_telco_gen / UNIQUE_VALS_telco_gen)
+PARTITIONS_NUM_telco_gen = check_partitions(PARTITIONS_NUM_telco_gen)
 
-car_sales_staging_df = dg.car_sales_gen(x_gen, y_gen, z_gen, PARTITIONS_NUM_car_sales_gen, ROW_COUNT_car_sales_gen, UNIQUE_VALS_car_sales_gen, True)
+telco_staging_df = dg.car_sales_gen(x_gen, y_gen, z_gen, PARTITIONS_NUM_telco_gen, ROW_COUNT_telco_gen, UNIQUE_VALS_telco_gen, True)
 
-car_sales_staging_df = car_sales_staging_df.drop("id")
+telco_staging_df = telco_staging_df.drop("id")
 
-df1 = car_sales_id_source_sample_df.unionByName(car_sales_staging_df, allowMissingColumns=True)
+df1 = telco_id_source_sample_df.unionByName(telco_staging_df, allowMissingColumns=True)
 
 #-----------------------------------------------------------------------------------
 # CREATE DATASETS WITH RANDOM DISTRIBUTIONS
@@ -136,32 +136,32 @@ def check_partitions(partitions):
     return partitions
   return partitions
 
-ROW_COUNT_car_sales_gen = random.randint(1, 499999)
-UNIQUE_VALS_car_sales_gen = random.randint(500, ROW_COUNT_car_sales_gen-1)
-PARTITIONS_NUM_car_sales_gen = round(ROW_COUNT_car_sales_gen / UNIQUE_VALS_car_sales_gen)
-PARTITIONS_NUM_car_sales_gen = check_partitions(PARTITIONS_NUM_car_sales_gen)
+ROW_COUNT_telco_gen = random.randint(1, 499999)
+UNIQUE_VALS_car_sales_gen = random.randint(500, ROW_COUNT_telco_gen-1)
+PARTITIONS_NUM_telco_gen = round(ROW_COUNT_telco_gen / UNIQUE_VALS_telco_gen)
+PARTITIONS_NUM_telco_gen = check_partitions(PARTITIONS_NUM_telco_gen)
 
-print("SPARKGEN PIPELINE SPARK HYPERPARAMS")
+print("TELCO DATAGEN PIPELINE SPARK HYPERPARAMS")
 print("\n")
 print("x: {}".format(x_gen))
 print("y: {}".format(y_gen))
 print("z: {}".format(z_gen))
 print("\n")
-print("ROW_COUNT_car_sales: {}".format(ROW_COUNT_car_sales_gen))
-print("UNIQUE_VALS_car_sales: {}".format(UNIQUE_VALS_car_sales_gen))
-print("PARTITIONS_NUM_car_sales: {}".format(PARTITIONS_NUM_car_sales_gen))
+print("ROW_COUNT_car_sales: {}".format(ROW_COUNT_telco_gen))
+print("UNIQUE_VALS_car_sales: {}".format(UNIQUE_VALS_telco_gen))
+print("PARTITIONS_NUM_car_sales: {}".format(PARTITIONS_NUM_telco_gen))
 print("\n")
 
-df2 = dg.car_sales_gen(x_gen, y_gen, z_gen, PARTITIONS_NUM_car_sales_gen, ROW_COUNT_car_sales_gen, UNIQUE_VALS_car_sales_gen, True)
+df2 = dg.car_sales_gen(x_gen, y_gen, z_gen, PARTITIONS_NUM_telco_gen, ROW_COUNT_telco_gen, UNIQUE_VALS_telco_gen, True)
 
 print("CREATING ICBERG TABLES FROM SPARK DATAFRAMES \n")
 print("\n")
 
-car_sales_staging_df = df1.union(df2)
+telco_staging_df = df1.union(df2)
 
-car_sales_staging_df = car_sales_staging_df.dropDuplicates(['id'])
+telco_staging_df = telco_staging_df.dropDuplicates(['id'])
 
-car_sales_staging_df.writeTo("{0}.CAR_SALES_STAGING_{1}".format(dbname, username))\
+telco_staging_df.writeTo("{0}.TELCO_STAGING_{1}".format(dbname, username))\
     .using("iceberg").tableProperty("write.format.default", "parquet").createOrReplace()
 
 print("\tPOPULATE TABLE(S) COMPLETED")

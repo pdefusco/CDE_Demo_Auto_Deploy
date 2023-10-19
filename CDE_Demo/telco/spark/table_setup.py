@@ -135,7 +135,7 @@ print("\n")
 print("CREATING ICBERG TABLES FROM SPARK DATAFRAMES \n")
 print("\n")
 
-car_sales_df.writeTo("{0}.CAR_SALES_{1}".format(dbname, username)).using("iceberg").tableProperty("write.format.default", "parquet").createOrReplace()
+car_sales_df.writeTo("{0}.TELCO_{1}".format(dbname, username)).using("iceberg").tableProperty("write.format.default", "parquet").createOrReplace()
 
 print("SHOW TABLES FROM {}".format(dbname))
 spark.sql("SHOW TABLES FROM {}".format(dbname)).show()

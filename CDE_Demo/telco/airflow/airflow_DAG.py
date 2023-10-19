@@ -48,7 +48,7 @@ from airflow.operators.bash import BashOperator
 from airflow.models.param import Param
 
 username = "pauldefusco" # Enter your workload username here
-cde_demo = "manufacturing"
+cde_demo = "telco"
 dag_name = "CDE_Demo_"+username+"-"+cde_demo
 
 print("Using DAG Name: {}".format(dag_name))

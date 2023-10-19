@@ -87,7 +87,7 @@ _DEBUG_ = False
 #                READ SOURCE TABLES
 #---------------------------------------------------
 print("JOB STARTED...")
-car_sales_df     = spark.sql("SELECT * FROM {0}.CAR_SALES_{1}".format(dbname, username)) #could also checkpoint here but need to set checkpoint dir
+car_sales_df     = spark.sql("SELECT * FROM {0}.TELCO_{1}".format(dbname, username)) #could also checkpoint here but need to set checkpoint dir
 
 print("\tREAD TABLE(S) COMPLETED")
 
@@ -98,11 +98,11 @@ print("\tREAD TABLE(S) COMPLETED")
 # PRE-INSERT COUNT
 print("\n")
 print("PRE-MERGE COUNT")
-spark.sql("SELECT COUNT(*) FROM spark_catalog.{0}.CAR_SALES_{1}".format(dbname, username)).show()
+spark.sql("SELECT COUNT(*) FROM spark_catalog.{0}.TELCO_{1}".format(dbname, username)).show()
 
-ICEBERG_MERGE_INTO = "MERGE INTO spark_catalog.{0}.CAR_SALES_{1} t\
-                      USING (SELECT * FROM spark_catalog.{0}.CAR_SALES_STAGING_{1}) s\
-                      ON t.id = s.id\
+ICEBERG_MERGE_INTO = "MERGE INTO spark_catalog.{0}.TELCO_{1} t\
+                      USING (SELECT * FROM spark_catalog.{0}.TELCO_STAGING_{1}) s\
+                      ON t.customer_id = s.customer_id\
                       WHEN MATCHED THEN UPDATE SET t.saleprice = s.saleprice\
                       WHEN NOT MATCHED THEN INSERT *".format(dbname, username)
 
@@ -116,6 +116,6 @@ spark.sql(ICEBERG_MERGE_INTO)
 print("\n")
 print("POST-MERGE COUNT")
 print("\n")
-spark.sql("SELECT COUNT(*) FROM spark_catalog.{0}.CAR_SALES_{1}".format(dbname, username)).show()
+spark.sql("SELECT COUNT(*) FROM spark_catalog.{0}.TELCO_{1}".format(dbname, username)).show()
 
 print("JOB COMPLETED!\n\n")
