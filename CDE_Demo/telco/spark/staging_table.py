@@ -50,6 +50,7 @@ from utils import *
 from datetime import datetime
 import sys
 import random
+from sedona.spark import *
 
 ## CDE PROPERTIES
 config = configparser.ConfigParser()
@@ -69,100 +70,42 @@ print("\nUsing DB Name: ", dbname)
 
 spark = SparkSession \
     .builder \
-    .appName("ICEBERG LOAD") \
-    .config("spark.sql.catalog.spark_catalog", "org.apache.iceberg.spark.SparkSessionCatalog")\
-    .config("spark.sql.catalog.spark_catalog.type", "hive")\
-    .config("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")\
+    .appName("IOT DEVICES LOAD") \
     .config("spark.kubernetes.access.hadoopFileSystems", data_lake_name)\
     .getOrCreate()
+
+#---------------------------------------------------
+#               CREATE SEDONA CONTEXT
+#---------------------------------------------------
+
+config = SedonaContext.builder().\
+    config('spark.jars.packages',
+           'org.apache.sedona:sedona-spark-shaded-3.0_2.12:1.4.1,'
+           'org.datasyslab:geotools-wrapper:1.4.0-28.2'). \
+    getOrCreate()
+
+sedona = SedonaContext.create(spark)
+
+sc = sedona.sparkContext
+sc.setSystemProperty("sedona.global.charset", "utf8")
 
 #-----------------------------------------------------------------------------------
 # CREATE STAGING DATASET 1 WITH SOME TARGET ID'S
 #-----------------------------------------------------------------------------------
 
-print("SAMPLING CUSTOMER ID'S FROM TARGET TABLE\n")
+print("LOADING IOT DEVICES\n")
 print("\n")
-
-ROW_PERCENT_telco_source_sample = random.randint(1,100)
-
-print("SAMPLING {} PERCENT ROWS FROM TARGET TABLE".format(ROW_PERCENT_telco_source_sample))
-
-car_sales_id_source_sample_df = spark.sql("SELECT CUSTOMER_ID FROM {0}.TELCO_{1} TABLESAMPLE ({2} PERCENT)"\
-        .format(dbname, username, ROW_PERCENT_telco_source_sample))
-
-ROW_COUNT_telco_gen = telco_id_source_sample_df.count()
 
 dg = DataGen(spark, username)
 
-x_gen = random.randint(1, 3)
-y_gen = random.randint(1, 4)
-z_gen = random.randint(2, 5)
+iot_points_df = dg.iot_points_gen()
+iot_points_df.createOrReplaceTempView("iot_geo_tmp")
 
-def check_partitions(partitions):
-  if partitions > 100:
-    partitions = 100
-  if partitions < 5:
-    partitions = 5
-  else:
-    return partitions
-  return partitions
+iot_points_geo_df = sedona.sql("select id, device_id, manufacturer, event_type, event_ts, ST_Point(cast(iot_geo_tmp.latitude as Decimal(24,20)), cast(iot_geo_tmp.longitude as Decimal(24,20))) as arealandmark from iot_geo_tmp")
+iot_points_geo_df.show()
 
-UNIQUE_VALS_telco_gen = random.randint(500, ROW_COUNT_telco_gen-1)
-PARTITIONS_NUM_telco_gen = round(ROW_COUNT_telco_gen / UNIQUE_VALS_telco_gen)
-PARTITIONS_NUM_telco_gen = check_partitions(PARTITIONS_NUM_telco_gen)
-
-telco_staging_df = dg.car_sales_gen(x_gen, y_gen, z_gen, PARTITIONS_NUM_telco_gen, ROW_COUNT_telco_gen, UNIQUE_VALS_telco_gen, True)
-
-telco_staging_df = telco_staging_df.drop("id")
-
-df1 = telco_id_source_sample_df.unionByName(telco_staging_df, allowMissingColumns=True)
-
-#-----------------------------------------------------------------------------------
-# CREATE DATASETS WITH RANDOM DISTRIBUTIONS
-#-----------------------------------------------------------------------------------
-
-dg = DataGen(spark, username)
-
-x_gen = random.randint(1, 3)
-y_gen = random.randint(1, 4)
-z_gen = random.randint(2, 5)
-
-def check_partitions(partitions):
-  if partitions > 100:
-    partitions = 100
-  if partitions < 5:
-    partitions = 5
-  else:
-    return partitions
-  return partitions
-
-ROW_COUNT_telco_gen = random.randint(1, 499999)
-UNIQUE_VALS_car_sales_gen = random.randint(500, ROW_COUNT_telco_gen-1)
-PARTITIONS_NUM_telco_gen = round(ROW_COUNT_telco_gen / UNIQUE_VALS_telco_gen)
-PARTITIONS_NUM_telco_gen = check_partitions(PARTITIONS_NUM_telco_gen)
-
-print("TELCO DATAGEN PIPELINE SPARK HYPERPARAMS")
-print("\n")
-print("x: {}".format(x_gen))
-print("y: {}".format(y_gen))
-print("z: {}".format(z_gen))
-print("\n")
-print("ROW_COUNT_car_sales: {}".format(ROW_COUNT_telco_gen))
-print("UNIQUE_VALS_car_sales: {}".format(UNIQUE_VALS_telco_gen))
-print("PARTITIONS_NUM_car_sales: {}".format(PARTITIONS_NUM_telco_gen))
-print("\n")
-
-df2 = dg.car_sales_gen(x_gen, y_gen, z_gen, PARTITIONS_NUM_telco_gen, ROW_COUNT_telco_gen, UNIQUE_VALS_telco_gen, True)
-
-print("CREATING ICBERG TABLES FROM SPARK DATAFRAMES \n")
-print("\n")
-
-telco_staging_df = df1.union(df2)
-
-telco_staging_df = telco_staging_df.dropDuplicates(['id'])
-
-telco_staging_df.writeTo("{0}.TELCO_STAGING_{1}".format(dbname, username))\
-    .using("iceberg").tableProperty("write.format.default", "parquet").createOrReplace()
+iot_points_geo_df.write.mode(SaveMode.Overwrite).saveAsTable("{0}.IOT_GEO_DEVICES_{1}".format(dbname, username))
+iot_points_geo_df.printSchema()
 
 print("\tPOPULATE TABLE(S) COMPLETED")
 

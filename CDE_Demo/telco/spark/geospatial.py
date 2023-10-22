@@ -46,6 +46,7 @@ import os
 import random
 from datetime import datetime
 import sys
+from sedona.spark import *
 
 ## CDE PROPERTIES
 config = configparser.ConfigParser()
@@ -65,12 +66,24 @@ print("\nUsing DB Name: ", dbname)
 
 spark = SparkSession \
     .builder \
-    .appName("ICEBERG MERGE INTO") \
-    .config("spark.sql.catalog.spark_catalog", "org.apache.iceberg.spark.SparkSessionCatalog")\
-    .config("spark.sql.catalog.spark_catalog.type", "hive")\
-    .config("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")\
+    .appName("IOT DEVICES LOAD") \
     .config("spark.kubernetes.access.hadoopFileSystems", data_lake_name)\
     .getOrCreate()
+
+#---------------------------------------------------
+#               CREATE SEDONA CONTEXT
+#---------------------------------------------------
+
+config = SedonaContext.builder().\
+    config('spark.jars.packages',
+           'org.apache.sedona:sedona-spark-shaded-3.0_2.12:1.4.1,'
+           'org.datasyslab:geotools-wrapper:1.4.0-28.2'). \
+    getOrCreate()
+
+sedona = SedonaContext.create(spark)
+
+sc = sedona.sparkContext
+sc.setSystemProperty("sedona.global.charset", "utf8")
 
 # Show catalog and database
 print("SHOW CURRENT NAMESPACE")
@@ -87,35 +100,56 @@ _DEBUG_ = False
 #                READ SOURCE TABLES
 #---------------------------------------------------
 print("JOB STARTED...")
-car_sales_df     = spark.sql("SELECT * FROM {0}.TELCO_{1}".format(dbname, username)) #could also checkpoint here but need to set checkpoint dir
+
+iot_geo_devices_df = spark.sql("SELECT * FROM {0}.IOT_GEO_DEVICES_{1}".format(dbname, username)) #could also checkpoint here but need to set checkpoint dir
+countries_geo_df = spark.sql("SELECT * FROM {0}.COUNTRIES_{1}".format(dbname, username))
 
 print("\tREAD TABLE(S) COMPLETED")
 
 #---------------------------------------------------
-#               ICEBERG MERGE INTO
+#               GEOSPATIAL JOIN
+#---------------------------------------------------
+print("GEOSPATIAL JOIN...")
+
+GEOSPATIAL_JOIN = """
+                    SELECT c.geometry as country_geom,
+                            c.NAME_EN, a.arealandmark as iot_device_location,
+                            a.device_id
+                    FROM {0}.COUNTRIES_{1} c, {2}.IOT_GEO_DEVICES_{3} a
+                    WHERE ST_Contains(c.geometry, a.arealandmark)
+                    """.format(dbname, username, dbname, username)
+
+result = sedona.sql(GEOSPATIAL_JOIN)
+
+result.createOrReplaceTempView("result")
+
+#---------------------------------------------------
+#               GEOSPATIAL GROUP BY
 #---------------------------------------------------
 
-# PRE-INSERT COUNT
-print("\n")
-print("PRE-MERGE COUNT")
-spark.sql("SELECT COUNT(*) FROM spark_catalog.{0}.TELCO_{1}".format(dbname, username)).show()
+groupedresult = sedona.sql("""SELECT c.NAME_EN, c.country_geom, count(*) as DeviceCount
+                            FROM result c
+                            GROUP BY c.NAME_EN, c.country_geom""")
+groupedresult.show()
 
-ICEBERG_MERGE_INTO = "MERGE INTO spark_catalog.{0}.TELCO_{1} t\
-                      USING (SELECT * FROM spark_catalog.{0}.TELCO_STAGING_{1}) s\
-                      ON t.customer_id = s.customer_id\
-                      WHEN MATCHED THEN UPDATE SET t.saleprice = s.saleprice\
-                      WHEN NOT MATCHED THEN INSERT *".format(dbname, username)
+#---------------------------------------------------
+#               GEOSPATIAL DISTANCE JOIN
+#---------------------------------------------------
 
-print("\n")
-print("EXECUTING ICEBERG MERGE INTO QUERY")
-print("\n")
-print(ICEBERG_MERGE_INTO)
-spark.sql(ICEBERG_MERGE_INTO)
+iot_geo_df_sample = spark.sql("SELECT * FROM {0}.IOT_GEO_DEVICES_{1} LIMIT 10".format(dbname, username))
+iot_geo_df_sample.createOrReplaceTempView("iot_geo_df_sample")
 
-# PRE-INSERT COUNT
-print("\n")
-print("POST-MERGE COUNT")
-print("\n")
-spark.sql("SELECT COUNT(*) FROM spark_catalog.{0}.TELCO_{1}".format(dbname, username)).show()
+distance_join = """
+                SELECT *
+                FROM iot_geo_df_sample a, {0}.IOT_GEO_DEVICES_{1} b
+                WHERE ST_Distance(a.arealandmark,b.arealandmark) < 2
+                """.format(dbname, username))
+
+print("SELECTING ALL IOT DEVICES LOCATED WITHIN PROVIDED DISTANCE OF THE TEN PROVIDED IOT DEVICES")
+spark.sql(distance_join).show()
+
+print(iot_geo_df.count())
+print(spark.sql(distance_join).count())
+
 
 print("JOB COMPLETED!\n\n")

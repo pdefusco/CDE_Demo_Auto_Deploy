@@ -44,9 +44,8 @@ import sys
 import os
 from os.path import exists
 from pyspark.sql import SparkSession
-import pyspark.sql.functions as F
-from pyspark.sql.functions import lit
 from utils import *
+from sedona.spark import *
 
 ## CDE PROPERTIES
 config = configparser.ConfigParser()
@@ -66,48 +65,24 @@ print("\nUsing DB Name: ", dbname)
 
 spark = SparkSession \
     .builder \
-    .appName("ICEBERG LOAD") \
-    .config("spark.sql.catalog.spark_catalog", "org.apache.iceberg.spark.SparkSessionCatalog")\
-    .config("spark.sql.catalog.spark_catalog.type", "hive")\
-    .config("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")\
+    .appName("COUNTRIES LOAD") \
     .config("spark.kubernetes.access.hadoopFileSystems", data_lake_name)\
     .getOrCreate()
 
-#-----------------------------------------------------------------------------------
-# CREATE DATASETS WITH RANDOM DISTRIBUTIONS
-#-----------------------------------------------------------------------------------
+#---------------------------------------------------
+#               CREATE SEDONA CONTEXT
+#---------------------------------------------------
 
-dg = DataGen(spark, username)
+config = SedonaContext.builder().\
+    config('spark.jars.packages',
+           'org.apache.sedona:sedona-spark-shaded-3.0_2.12:1.4.1,'
+           'org.datasyslab:geotools-wrapper:1.4.0-28.2'). \
+    getOrCreate()
 
-x_gen = random.randint(1, 3)
-y_gen = random.randint(1, 4)
-z_gen = random.randint(2, 5)
+sedona = SedonaContext.create(spark)
 
-def check_partitions(partitions):
-  if partitions > 100:
-    partitions = 100
-  if partitions < 5:
-    partitions = 5
-  else:
-    return partitions
-  return partitions
-
-ROW_COUNT_car_sales_gen = random.randint(500000, 500000)
-UNIQUE_VALS_car_sales_gen = random.randint(500, ROW_COUNT_car_sales_gen-1)
-PARTITIONS_NUM_car_sales_gen = round(ROW_COUNT_car_sales_gen / UNIQUE_VALS_car_sales_gen)
-PARTITIONS_NUM_car_sales_gen = check_partitions(PARTITIONS_NUM_car_sales_gen)
-
-print("SPARKGEN PIPELINE SPARK HYPERPARAMS")
-print("\n")
-print("x_gen: {}".format(x_gen))
-print("y_gen: {}".format(y_gen))
-print("z_gen: {}".format(z_gen))
-print("\n")
-print("ROW_COUNT_car_sales: {}".format(ROW_COUNT_car_sales_gen))
-print("UNIQUE_VALS_car_sales: {}".format(UNIQUE_VALS_car_sales_gen))
-print("PARTITIONS_NUM_car_sales: {}".format(PARTITIONS_NUM_car_sales_gen))
-
-car_sales_df = dg.car_sales_gen(x_gen, y_gen, z_gen, PARTITIONS_NUM_car_sales_gen, ROW_COUNT_car_sales_gen, UNIQUE_VALS_car_sales_gen, True)
+sc = sedona.sparkContext
+sc.setSystemProperty("sedona.global.charset", "utf8")
 
 #---------------------------------------------------
 #       SQL CLEANUP: DATABASES, TABLES, VIEWS
@@ -129,19 +104,19 @@ print("SHOW DATABASES LIKE '{}'".format(dbname))
 spark.sql("SHOW DATABASES LIKE '{}'".format(dbname)).show()
 print("\n")
 
-#---------------------------------------------------
-#               POPULATE TABLES
-#---------------------------------------------------
-print("CREATING ICBERG TABLES FROM SPARK DATAFRAMES \n")
+#-----------------------------------------------------------------------------------
+# CREATE TABLE FROM DATA IN CDE FILES RESOURCE
+#-----------------------------------------------------------------------------------
+
+print("CREATING COUNTRIES TABLE \n")
 print("\n")
 
-car_sales_df.writeTo("{0}.TELCO_{1}".format(dbname, username)).using("iceberg").tableProperty("write.format.default", "parquet").createOrReplace()
+countries = ShapefileReader.readToGeometryRDD(sc, "/app/mount")
+countries_df = Adapter.toDf(countries, sedona)
+countries_df.write.mode(SaveMode.Overwrite).saveAsTable("{0}.COUNTRIES_{1}".format(dbname, username))
+countries_df.printSchema()
 
-print("SHOW TABLES FROM {}".format(dbname))
-spark.sql("SHOW TABLES FROM {}".format(dbname)).show()
-print("\n")
-
-print("\tPOPULATE TABLE(S) COMPLETED")
+print("\tCOUNTRIES TABLE CREATION COMPLETED")
 
 ##---------------------------------------------------
 ##                 SHOW DATABASES

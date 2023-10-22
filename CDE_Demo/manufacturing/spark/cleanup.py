@@ -65,7 +65,7 @@ print("\nUsing DB Name: ", dbname)
 
 spark = SparkSession \
     .builder \
-    .appName("ICEBERG LOAD") \
+    .appName("MANUFACTURING DEMO CLEANUP") \
     .config("spark.sql.catalog.spark_catalog", "org.apache.iceberg.spark.SparkSessionCatalog")\
     .config("spark.sql.catalog.spark_catalog.type", "hive")\
     .config("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")\

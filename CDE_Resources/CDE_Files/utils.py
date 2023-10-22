@@ -207,7 +207,6 @@ class DataGen:
 
         return df
 
-
     def telco_gen(self, x, y, z, partitions_num=10, row_count = 100000, unique_vals=100000, display_option=True):
         """
         Method to create Telco DF
@@ -290,6 +289,26 @@ class DataGen:
 
         df = testDataSpec.build()
 
-        df = df.drop("Loan_ID_base")
+        return df
+
+    def iot_points_gen(self, partitions_num=10, row_count = 100000, unique_vals=100000, display_option=True):
+        """
+        Method to create dataframe with IoT readings and randomly located latitude and longitude
+        -90 to 90 for latitude and -180 to 180 for longitude
+        """
+        testDataSpec = (
+            dg.DataGenerator(spark, name="iot", rows=data_rows,partitions=partitions_requested).withIdOutput()
+            .withColumn("internal_device_id", "long", minValue=0x1000000000000,uniqueValues=device_population, omit=True, baseColumnType="hash",)
+            .withColumn("device_id", "string", format="0x%013x", baseColumn="internal_device_id")
+            .withColumn("manufacturer", "string", values=manufacturers, baseColumn="internal_device_id")
+            .withColumn("model_ser", "integer", minValue=1, maxValue=11, baseColumn="device_id", baseColumnType="hash", omit=True, )
+            .withColumn("model_line", "string", expr="concat(line, '#', model_ser)", baseColumn=["line", "model_ser"] )
+            .withColumn("event_type", "string", values=["activation", "deactivation", "plan change", "telecoms activity","internet activity", "device error"],random=True)
+            .withColumn("event_ts", "timestamp", begin="2020-01-01 01:00:00",end="2020-12-31 23:59:00",interval="1 minute", random=True )
+            .withColumn("longitude", "float", minValue=-180, maxValue=180, random=True)
+            .withColumn("latitude", "float", minValue=-90, maxValue=90, random=True)
+        )
+
+        df = testDataSpec.build()
 
         return df
