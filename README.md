@@ -60,7 +60,11 @@ Add your CDE Virtual Cluster to the CDE CLI configuration file. To do so, paste 
 vi ~/.cde/config.yaml
 ```
 
-Next open the Airflow file ```airfloe_DAG.py``` located in the ```CDE_Demo/airflow directory``` and edit the username at line 50 by adding your CDP Workload Username.
+Next open the Airflow DAG and edit the username at line 50 by adding your CDP Workload Username.
+
+```
+vi ~/CDE_Demo/airflow/airflow_DAG.py
+```
 
 <pre>
 # Airflow DAG
@@ -79,6 +83,7 @@ from airflow.models.param import Param
 #### 1. Important Information
 
 * Each generated Iceberg Table, CDE Job and Resource will be prefixed with your CDP Workload Username.
+* CDP Workload Users with dots, hyphens and other symbols are not currently supported. Please reach out to the Field Specialist team for a workaround.
 * Multiple users can deploy the demo in the same CDE Virtual Cluster as long as they use different credentials.
 * Each user can deploy the demo at most once in the same CDE Virtual Cluster.
 * All Iceberg tables, CDE Jobs and Resources are deleted from the CDE Virtual Cluster upon execution of the "autodestroy.sh" script.
