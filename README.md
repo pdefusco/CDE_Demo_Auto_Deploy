@@ -22,7 +22,7 @@ This git repository hosts the automation for a CDE Demo that includes Spark, Air
 To deploy the demo via this automation you need:
 
 * A CDE Virtual Cluster in CDP Public Cloud AWS (Azure coming soon).
-* A working installation of Docker on your local machine.
+* A working installation of Docker on your local machine and a Dockerhub account. Please have your Dockerhub user and password ready.
 * Basic knowledge of CDE, Python, Airflow, Iceberg and PySpark is recommended but not required. No code changes are required.
 
 

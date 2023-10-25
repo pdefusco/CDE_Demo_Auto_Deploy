@@ -1,5 +1,5 @@
 #****************************************************************************
-# (C) Cloudera, Inc. 2020-2022
+# (C) Cloudera, Inc. 2020-2023
 #  All rights reserved.
 #
 #  Applicable Open Source License: GNU Affero General Public License v3.0
@@ -37,58 +37,41 @@
 # #  Author(s): Paul de Fusco
 #***************************************************************************/
 
-# Airflow DAG
-from datetime import datetime, timedelta
-from dateutil import parser
-from airflow import DAG
-from cloudera.cdp.airflow.operators.cde_operator import CDEJobRunOperator
-from airflow.operators.python import PythonOperator
-from airflow.operators.dummy_operator import DummyOperator
-from airflow.operators.bash import BashOperator
-from airflow.models.param import Param
+import os
+import numpy as np
+import pandas as pd
+from datetime import datetime
+from pyspark.sql.types import LongType, IntegerType, StringType
+import dbldatagen as dg
+import dbldatagen.distributions as dist
 
-username = "pauldefusco" # Enter your workload username here
-cde_demo = "telco"
-dag_name = "CDE_Demo_"+username+"-"+cde_demo
+class DataGen:
 
-print("Using DAG Name: {}".format(dag_name))
+    '''Class to Generate Data'''
 
-default_args = {
-        'owner':username,
-        'start_date': datetime(2023,1,1,1),
-        'depends_on_past': False,
-        'retries':1,
-        'schedule_interval':'*/5 * * * *', #timedelta(minutes=5)
-        'retry_delay': timedelta(minutes=15),
-        'end_date': datetime(2025,1,1,1)
-        }
+    def __init__(self, spark, username):
+        self.spark = spark
+        self.username = username
 
-airflow_dag = DAG(
-        dag_name,
-        default_args=default_args,
-        catchup=False,
-        schedule_interval='*/5 * * * *',
-        is_paused_upon_creation=False
+    def iot_points_gen(self, partitions_num=10, row_count = 100000, unique_vals=100000, display_option=True):
+        """
+        Method to create dataframe with IoT readings and randomly located latitude and longitude
+        -90 to 90 for latitude and -180 to 180 for longitude
+        """
+        manufacturers = ["IOT corp", "GEOSPATIAL Inc.", "United Geo Enterprises Ltd", "IOT_Century Corp", "Satellite Devices"]
+
+        testDataSpec = (
+            dg.DataGenerator(self.spark, name="iot", rows=row_count,partitions=partitions_num).withIdOutput()
+            .withColumn("internal_device_id", "long", minValue=0x1000000000000,uniqueValues=unique_vals, omit=True, baseColumnType="hash",)
+            .withColumn("device_id", "string", format="0x%013x", baseColumn="internal_device_id")
+            .withColumn("manufacturer", "string", values=manufacturers, baseColumn="internal_device_id")
+            .withColumn("model_ser", "integer", minValue=1, maxValue=11, baseColumn="device_id", baseColumnType="hash", omit=True, )
+            .withColumn("event_type", "string", values=["activation", "deactivation", "plan change", "telecoms activity","internet activity", "device error"],random=True)
+            .withColumn("event_ts", "timestamp", begin="2020-01-01 01:00:00",end="2020-12-31 23:59:00",interval="1 minute", random=True )
+            .withColumn("longitude", "float", minValue=-180, maxValue=180, random=True)
+            .withColumn("latitude", "float", minValue=-90, maxValue=90, random=True)
         )
 
-start = DummyOperator(
-        task_id="start",
-        dag=airflow_dag
-)
+        df = testDataSpec.build()
 
-staging_step = CDEJobRunOperator(
-        task_id='create-staging-table',
-        dag=airflow_dag,
-        job_name='create_staging_table-'+username+"-"+cde_demo, #Must match name of CDE Spark Job in the CDE Jobs UI
-        trigger_rule='all_success',
-        )
-
-geospatial_step = CDEJobRunOperator(
-        task_id='geospatial-joins',
-        dag=airflow_dag,
-        job_name='geospatial-joins-'+username+"-"+cde_demo, #Must match name of CDE Spark Job in the CDE Jobs UI
-        trigger_rule='all_success',
-        )
-
-
-start >> staging_step >> geospatial_step
+        return df

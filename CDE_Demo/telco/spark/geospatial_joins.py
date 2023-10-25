@@ -39,18 +39,16 @@
 
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
-from pyspark.sql.functions import lit
 import configparser
+import random, os, sys
 from datetime import datetime
-import os
-import random
-from datetime import datetime
-import sys
 from sedona.spark import *
+from keplergl import KeplerGl
+from pyspark.sql.functions import col, expr, when
 
 ## CDE PROPERTIES
 config = configparser.ConfigParser()
-config.read('/app/mount/parameters.conf')
+config.read('/app/mount/jobCode/parameters.conf')
 data_lake_name=config.get("general","data_lake_name")
 username=config.get("general","username")
 
@@ -59,6 +57,8 @@ print("\nRunning as Username: ", username)
 dbname = "CDE_DEMO_{}".format(username)
 
 print("\nUsing DB Name: ", dbname)
+
+geoparquetoutputlocation = "CDE_GEOSPATIAL"
 
 #---------------------------------------------------
 #               CREATE SPARK SESSION
@@ -74,11 +74,7 @@ spark = SparkSession \
 #               CREATE SEDONA CONTEXT
 #---------------------------------------------------
 
-config = SedonaContext.builder().\
-    config('spark.jars.packages',
-           'org.apache.sedona:sedona-spark-shaded-3.0_2.12:1.4.1,'
-           'org.datasyslab:geotools-wrapper:1.4.0-28.2'). \
-    getOrCreate()
+config = SedonaContext.builder().getOrCreate()
 
 sedona = SedonaContext.create(spark)
 
@@ -87,24 +83,39 @@ sc.setSystemProperty("sedona.global.charset", "utf8")
 
 # Show catalog and database
 print("SHOW CURRENT NAMESPACE")
-spark.sql("SHOW CURRENT NAMESPACE").show()
-spark.sql("USE {}".format(dbname))
+sedona.sql("SHOW CURRENT NAMESPACE").show()
+sedona.sql("USE {}".format(dbname))
 
 # Show catalog and database
 print("SHOW NEW NAMESPACE IN USE\n")
-spark.sql("SHOW CURRENT NAMESPACE").show()
+sedona.sql("SHOW CURRENT NAMESPACE").show()
 
 _DEBUG_ = False
 
 #---------------------------------------------------
-#                READ SOURCE TABLES
+#                READ SOURCE FILES
 #---------------------------------------------------
-print("JOB STARTED...")
 
-iot_geo_devices_df = spark.sql("SELECT * FROM {0}.IOT_GEO_DEVICES_{1}".format(dbname, username)) #could also checkpoint here but need to set checkpoint dir
-countries_geo_df = spark.sql("SELECT * FROM {0}.COUNTRIES_{1}".format(dbname, username))
+from sedona.core.formatMapper import GeoJsonReader
 
-print("\tREAD TABLE(S) COMPLETED")
+geo_json_file_location = data_lake_name + geoparquetoutputlocation + "/iot_spatial.json"
+saved_rdd_iot = GeoJsonReader.readToGeometryRDD(sc, geo_json_file_location)
+
+saved_rdd_countries = ShapefileReader.readToGeometryRDD(sc, "/app/mount/countriesData")
+
+iot_geo_devices_df = Adapter.toDf(saved_rdd_iot, sedona)
+iot_geo_devices_df.printSchema()
+
+countries_geo_df = Adapter.toDf(saved_rdd_countries, sedona)
+countries_geo_df.printSchema()
+
+print("\nSHOW IOT GEO DEVICES DF")
+#iot_geo_devices_df.show()
+print("\nSHOW COUNTRIES DF")
+#countries_geo_df.show()
+
+iot_geo_devices_df.createOrReplaceTempView("IOT_GEO_DEVICES_{}".format(username))
+countries_geo_df.createOrReplaceTempView("COUNTRIES_{}".format(username))
 
 #---------------------------------------------------
 #               GEOSPATIAL JOIN
@@ -113,43 +124,17 @@ print("GEOSPATIAL JOIN...")
 
 GEOSPATIAL_JOIN = """
                     SELECT c.geometry as country_geom,
-                            c.NAME_EN, a.arealandmark as iot_device_location,
+                            c.NAME_EN,
+                            a.geometry as iot_device_location,
                             a.device_id
-                    FROM {0}.COUNTRIES_{1} c, {2}.IOT_GEO_DEVICES_{3} a
-                    WHERE ST_Contains(c.geometry, a.arealandmark)
-                    """.format(dbname, username, dbname, username)
+                    FROM COUNTRIES_{0} c, IOT_GEO_DEVICES_{0} a
+                    WHERE ST_Contains(c.geometry, a.geometry)
+                    """.format(username)
 
 result = sedona.sql(GEOSPATIAL_JOIN)
+result.explain()
+result.show()
 
 result.createOrReplaceTempView("result")
-
-#---------------------------------------------------
-#               GEOSPATIAL GROUP BY
-#---------------------------------------------------
-
-groupedresult = sedona.sql("""SELECT c.NAME_EN, c.country_geom, count(*) as DeviceCount
-                            FROM result c
-                            GROUP BY c.NAME_EN, c.country_geom""")
-groupedresult.show()
-
-#---------------------------------------------------
-#               GEOSPATIAL DISTANCE JOIN
-#---------------------------------------------------
-
-iot_geo_df_sample = spark.sql("SELECT * FROM {0}.IOT_GEO_DEVICES_{1} LIMIT 10".format(dbname, username))
-iot_geo_df_sample.createOrReplaceTempView("iot_geo_df_sample")
-
-distance_join = """
-                SELECT *
-                FROM iot_geo_df_sample a, {0}.IOT_GEO_DEVICES_{1} b
-                WHERE ST_Distance(a.arealandmark,b.arealandmark) < 2
-                """.format(dbname, username))
-
-print("SELECTING ALL IOT DEVICES LOCATED WITHIN PROVIDED DISTANCE OF THE TEN PROVIDED IOT DEVICES")
-spark.sql(distance_join).show()
-
-print(iot_geo_df.count())
-print(spark.sql(distance_join).count())
-
 
 print("JOB COMPLETED!\n\n")
