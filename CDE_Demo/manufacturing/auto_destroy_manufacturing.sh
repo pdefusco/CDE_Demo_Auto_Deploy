@@ -40,3 +40,8 @@ echo "Delete resource cde_demo_files-"$cde_user"-mfct"
 cde resource delete --name cde_demo_files-$cde_user"-mfct"
 echo "Delete resource cde_airflow_files-"$cde_user"-mfct"
 cde resource delete --name cde_airflow_files-$cde_user"-mfct"
+
+echo "."
+echo ".."
+echo "..."
+echo "....TEARDOWN COMPLETED"

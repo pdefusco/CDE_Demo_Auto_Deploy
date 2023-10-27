@@ -89,7 +89,7 @@ print("\n")
 
 print("CREATING BANKING TRANSACTIONS\n")
 
-dg = DataGen(spark, username)
+dg = BankDataGen(spark, username)
 
 bankTransactionsDf = dg.bankDataGen()
 bankTransactionsDf.writeTo("{0}.BANKING_TRANSACTIONS_{1}".format(dbname, username))\

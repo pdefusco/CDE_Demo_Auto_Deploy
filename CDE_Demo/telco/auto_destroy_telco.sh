@@ -25,7 +25,7 @@ cde job create --name cleanup-$cde_user"-telco" --type spark --mount-1-resource 
 echo "Run cleanup job cleanup-"$cde_user"-telco"
 cde job run --name cleanup-$cde_user"-telco"
 n=1
-while [ $n -lt 50 ]
+while [ $n -lt 20 ]
 do
   echo "Running Cleanup Job..."
   sleep 2

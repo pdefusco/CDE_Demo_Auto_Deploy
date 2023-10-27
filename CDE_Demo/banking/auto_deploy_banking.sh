@@ -20,7 +20,7 @@ cde resource create --name dex-spark-runtime-ge-data-quality-$cde_user"-banking"
 echo "Create Resource cde_demo_files-"$cde_user"-banking"
 cde resource create --name cde_demo_files-$cde_user"-banking"
 echo "Upload utils.py to cde_demo_files-"$cde_user"-banking"
-cde resource upload --name cde_demo_files-$cde_user"-banking" --local-path CDE_Resources/CDE_Files/utils.py
+cde resource upload --name cde_demo_files-$cde_user"-banking" --local-path CDE_Demo/banking/spark/utils.py
 echo "Upload parameters.conf to cde_demo_files-"$cde_user"-banking"
 cde resource upload --name cde_demo_files-$cde_user"-banking" --local-path CDE_Resources/CDE_Files/parameters.conf
 
@@ -29,11 +29,11 @@ echo "Upload batch_load.py to cde_demo_files-"$cde_user"-banking"
 cde resource upload --name cde_demo_files-$cde_user"-banking" --local-path CDE_Demo/banking/spark/batch_load.py
 echo "Upload ge_data_quality.py to cde_demo_files-"$cde_user"-banking"
 cde resource upload --name cde_demo_files-$cde_user"-banking" --local-path CDE_Demo/banking/spark/ge_data_quality.py
-echo "Upload airflow.py to cde_demo_files-"$cde_user
+echo "Upload airflow.py to cde_demo_files-"$cde_user"-banking"
 cde resource upload --name cde_demo_files-$cde_user"-banking" --local-path CDE_Demo/banking/airflow/airflow.py
 
 echo "Create job batch_load-"$cde_user"-banking"
-cde job create --name batch_load-$cde_user"-banking" --type spark --mount-1-prefix jobCode/ --mount-1-resource cde_demo_files-$cde_user"-banking" --application-file batch_load.py --runtime-image-resource-name dex-spark-runtime-ge-data-quality-$cde_user"-banking"
+cde job create --name batch_load-$cde_user"-banking" --type spark --mount-1-prefix jobCode/ --mount-1-resource cde_demo_files-$cde_user"-banking" --application-file jobCode/batch_load.py --runtime-image-resource-name dex-spark-runtime-ge-data-quality-$cde_user"-banking"
 echo "Create job ge_data_quality-"$cde_user"-banking"
 cde job create --name ge_data_quality-$cde_user"-banking" --type spark --mount-1-resource cde_demo_files-$cde_user"-banking" --application-file ge_data_quality.py --runtime-image-resource-name dex-spark-runtime-ge-data-quality-$cde_user"-banking"
 echo "Create job data_quality_orchestration-"$cde_user"-banking"

@@ -32,6 +32,9 @@ cde resource upload --name job_code-$cde_user"-telco" --local-path CDE_Demo/telc
 echo "Create GEOSPATIAL RDD SPARK JOB"
 cde job create --name geospatial_rdd-$cde_user"-telco" --type spark --mount-1-prefix jobCode/ --mount-1-resource job_code-$cde_user"-telco" --mount-2-prefix countriesData/ --mount-2-resource countries_data-$cde_user"-telco" --runtime-image-resource-name dex-spark-runtime-sedona-geospatial-$cde_user"-telco" --packages org.apache.sedona:sedona-spark-shaded-3.0_2.12:1.5.0,org.datasyslab:geotools-wrapper:1.5.0-28.2 --application-file jobCode/geospatial_rdd.py
 
+echo "Run GEOSPATIAL RDD SPARK JOB"
+cde job run --name geospatial_rdd-$cde_user"-telco" --executor-cores 2 --executor-memory "4g"
+
 n=1
 while [ $n -lt 10 ]
 do
@@ -41,15 +44,12 @@ do
   ((n=$n+1))
 done
 
-echo "Create GEOSPATIAL JOINS SPARK JOB"
-cde job create --name geospatial_joins-$cde_user"-telco" --application-file jobCode/geospatial_joins.py --type spark --mount-1-prefix jobCode/ --mount-1-resource job_code-$cde_user"-telco" --mount-2-prefix countriesData/ --mount-2-resource countries_data-$cde_user"-telco" --runtime-image-resource-name dex-spark-runtime-sedona-geospatial-$cde_user"-telco" --packages org.apache.sedona:sedona-spark-shaded-3.0_2.12:1.5.0,org.datasyslab:geotools-wrapper:1.5.0-28.2
-
 # RUN CDE JOBS
-#echo "Run GEOSPATIAL RDD SPARK JOB"
-#cde job run --name geospatial_rdd-$cde_user"-telco" --executor-cores 2 --executor-memory "4g"
+echo "Run GEOSPATIAL RDD SPARK JOB"
+cde job run --name geospatial_rdd-$cde_user"-telco" --executor-cores 2 --executor-memory "4g"
 
-#echo "RUN GEOSPATIAL JOINS SPARK JOB"
-#cde job run --name geospatial_joins-$cde_user"-telco" --executor-cores 2 --executor-memory "4g"
+echo "RUN GEOSPATIAL JOINS SPARK JOB"
+cde job run --name geospatial_joins-$cde_user"-telco" --executor-cores 2 --executor-memory "4g"
 echo " "
 echo "."
 echo ".."
