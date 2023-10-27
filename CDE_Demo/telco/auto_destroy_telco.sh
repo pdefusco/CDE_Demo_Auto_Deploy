@@ -17,23 +17,25 @@ echo "Delete geospatial_rdd-"$cde_user"-telco"
 cde job delete --name geospatial_rdd-$cde_user"-telco"
 echo "Delete create_staging_table-"$cde_user"-telco"
 cde job delete --name geospatial_joins-$cde_user"-telco"
+echo "Delete create_staging_table-"$cde_user"-telco"
+cde job delete --name geo_orch-$cde_user"-telco"
 
-echo "Upload cleanup script to resource cde_demo_files-"$cde_user
-cde resource upload --name job_code-$cde_user"-telco" --local-path CDE_Demo/telco/spark/cleanup.py
-echo "Create cleanup job cleanup-"$cde_user"-telco"
-cde job create --name cleanup-$cde_user"-telco" --type spark --mount-1-resource job_code-$cde_user"-telco" --application-file cleanup.py
-echo "Run cleanup job cleanup-"$cde_user"-telco"
-cde job run --name cleanup-$cde_user"-telco"
+echo "Upload teardown script to resource cde_demo_files-"$cde_user
+cde resource upload --name job_code-$cde_user"-telco" --local-path CDE_Demo/telco/spark/teardown.py
+echo "Create teardown job teardown-"$cde_user"-telco"
+cde job create --name teardown-$cde_user"-telco" --type spark --mount-1-resource job_code-$cde_user"-telco" --application-file teardown.py
+echo "Run teardown job teardown-"$cde_user"-telco"
+cde job run --name teardown-$cde_user"-telco"
 n=1
 while [ $n -lt 20 ]
 do
-  echo "Running Cleanup Job..."
+  echo "Running teardown Job..."
   sleep 2
   echo " "
   ((n=$n+1))
 done
-echo "Delete cleanup job cleanup-"$cde_user
-cde job delete --name cleanup-$cde_user"-telco"
+echo "Delete teardown job teardown-"$cde_user
+cde job delete --name teardown-$cde_user"-telco"
 echo "Delete resource job_code-"$cde_user"-telco"
 cde resource delete --name job_code-$cde_user"-telco"
 echo "Delete resource countries_data-"$cde_user"-telco"

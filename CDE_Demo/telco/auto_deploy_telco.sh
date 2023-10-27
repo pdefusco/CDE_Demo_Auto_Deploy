@@ -1,7 +1,33 @@
 #!/bin/sh
 
+******  *******   ********       *******
+**////**/**////** /**/////       /**////**
+**    // /**    /**/**            /**    /**  *****  **********   ******
+/**       /**    /**/*******       /**    /** **///**//**//**//** **////**
+/**       /**    /**/**////        /**    /**/******* /** /** /**/**   /**
+//**    **/**    ** /**            /**    ** /**////  /** /** /**/**   /**
+//****** /*******  /********      /*******  //****** *** /** /**//******
+//////  ///////   ////////       ///////    ////// ///  //  //  //////
+
+
+
+toilet -F border CDE Demo
+
+jp2a cicon.png
+
 docker_user=$1
 cde_user=$2
+
+# your real command here, instead of sleep
+
+PID=$!
+i=1
+sp="/-\|"
+echo -n ' '
+while [ -d /proc/$PID ]
+do
+  printf "\b${sp:i++%${#sp}:1}"
+done
 
 echo "CDE TELCO - GEOSPATIAL DEMO DEPLOYMENT INITIATED...."
 echo "..."
@@ -34,7 +60,6 @@ cde job create --name geospatial_rdd-$cde_user"-telco" --type spark --mount-1-pr
 
 #echo "Run GEOSPATIAL RDD SPARK JOB"
 #cde job run --name geospatial_rdd-$cde_user"-telco" --executor-cores 2 --executor-memory "4g"
-
 
 # CREATE CDE JOBS
 echo "Create GEOSPATIAL JOINS SPARK JOB"
