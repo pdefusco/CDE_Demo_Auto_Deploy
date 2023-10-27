@@ -37,20 +37,16 @@
 # #  Author(s): Paul de Fusco
 #***************************************************************************/
 
-import random
-import configparser
-import json
-import sys
-import os
 from os.path import exists
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
-from pyspark.sql.functions import lit
 from utils import *
+from datetime import datetime
+import sys, random, os, json, random, configparser
 
 ## CDE PROPERTIES
 config = configparser.ConfigParser()
-config.read('/app/mount/parameters.conf')
+config.read('/app/mount/jobCode/parameters.conf')
 data_lake_name=config.get("general","data_lake_name")
 username=config.get("general","username")
 
@@ -66,48 +62,12 @@ print("\nUsing DB Name: ", dbname)
 
 spark = SparkSession \
     .builder \
-    .appName("ICEBERG LOAD") \
+    .appName("BANK TRANSACTIONS LOAD") \
     .config("spark.sql.catalog.spark_catalog", "org.apache.iceberg.spark.SparkSessionCatalog")\
     .config("spark.sql.catalog.spark_catalog.type", "hive")\
     .config("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")\
     .config("spark.kubernetes.access.hadoopFileSystems", data_lake_name)\
     .getOrCreate()
-
-#-----------------------------------------------------------------------------------
-# CREATE DATASETS WITH RANDOM DISTRIBUTIONS
-#-----------------------------------------------------------------------------------
-
-dg = DataGen(spark, username)
-
-x_gen = random.randint(1, 3)
-y_gen = random.randint(1, 4)
-z_gen = random.randint(2, 5)
-
-def check_partitions(partitions):
-  if partitions > 100:
-    partitions = 100
-  if partitions < 5:
-    partitions = 5
-  else:
-    return partitions
-  return partitions
-
-ROW_COUNT_car_sales_gen = random.randint(500000, 500000)
-UNIQUE_VALS_car_sales_gen = random.randint(500, ROW_COUNT_car_sales_gen-1)
-PARTITIONS_NUM_car_sales_gen = round(ROW_COUNT_car_sales_gen / UNIQUE_VALS_car_sales_gen)
-PARTITIONS_NUM_car_sales_gen = check_partitions(PARTITIONS_NUM_car_sales_gen)
-
-print("DATAGEN PIPELINE SPARK HYPERPARAMS")
-print("\n")
-print("x_gen: {}".format(x_gen))
-print("y_gen: {}".format(y_gen))
-print("z_gen: {}".format(z_gen))
-print("\n")
-print("ROW_COUNT_car_sales: {}".format(ROW_COUNT_car_sales_gen))
-print("UNIQUE_VALS_car_sales: {}".format(UNIQUE_VALS_car_sales_gen))
-print("PARTITIONS_NUM_car_sales: {}".format(PARTITIONS_NUM_car_sales_gen))
-
-loans_df = dg.loan_gen(x_gen, y_gen, z_gen, PARTITIONS_NUM_car_sales_gen, ROW_COUNT_car_sales_gen, UNIQUE_VALS_car_sales_gen, True)
 
 #---------------------------------------------------
 #       SQL CLEANUP: DATABASES, TABLES, VIEWS
@@ -115,39 +75,22 @@ loans_df = dg.loan_gen(x_gen, y_gen, z_gen, PARTITIONS_NUM_car_sales_gen, ROW_CO
 print("JOB STARTED...")
 spark.sql("DROP DATABASE IF EXISTS {} CASCADE".format(dbname))
 
-##---------------------------------------------------
-##                 CREATE DATABASES
-##---------------------------------------------------
 spark.sql("CREATE DATABASE IF NOT EXISTS {}".format(dbname))
 
-##---------------------------------------------------
-##                 SHOW DATABASES
-##---------------------------------------------------
-
-# Show databases
 print("SHOW DATABASES LIKE '{}'".format(dbname))
 spark.sql("SHOW DATABASES LIKE '{}'".format(dbname)).show()
 print("\n")
 
 #---------------------------------------------------
-#               POPULATE TABLES
+#               CREATE BATCH DATA
 #---------------------------------------------------
-print("CREATING ICBERG TABLES FROM SPARK DATAFRAMES \n")
-print("\n")
 
-car_sales_df.writeTo("{0}.PERSONAL_LOANS_{1}".format(dbname, username)).using("iceberg").tableProperty("write.format.default", "parquet").createOrReplace()
+print("CREATING BANKING TRANSACTIONS\n")
 
-print("SHOW TABLES FROM {}".format(dbname))
-spark.sql("SHOW TABLES FROM {}".format(dbname)).show()
-print("\n")
+dg = DataGen(spark, username)
 
-print("\tPOPULATE TABLE(S) COMPLETED")
+bankTransactionsDf = dg.bankDataGen()
+bankTransactionsDf.writeTo("{0}.BANKING_TRANSACTIONS_{1}".format(dbname, username))\
+    .using("iceberg").tableProperty("write.format.default", "parquet").createOrReplace()
 
-##---------------------------------------------------
-##                 SHOW DATABASES
-##---------------------------------------------------
-
-# Show databases
-print("SHOW DATABASES LIKE '{}'".format(dbname))
-spark.sql("SHOW DATABASES LIKE '{}'".format(dbname)).show()
-print("\n")
+print("BATCH LOAD JOB COMPLETED\n")

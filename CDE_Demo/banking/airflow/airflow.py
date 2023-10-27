@@ -76,25 +76,18 @@ start = DummyOperator(
         dag=airflow_dag
 )
 
-staging_step = CDEJobRunOperator(
-        task_id='create-staging-table',
+batch_load_step = CDEJobRunOperator(
+        task_id='batch-load-banking',
         dag=airflow_dag,
-        job_name='create_staging_table-'+username+"-"+cde_demo, #Must match name of CDE Spark Job in the CDE Jobs UI
+        job_name='batch_load', #Must match name of CDE Spark Job in the CDE Jobs UI
         trigger_rule='all_success',
         )
 
-mergeinto_step = CDEJobRunOperator(
-        task_id='iceberg-merge-into',
+data_quality_step = CDEJobRunOperator(
+        task_id='data-quality-banking',
         dag=airflow_dag,
-        job_name='iceberg_mergeinto-'+username+"-"+cde_demo, #Must match name of CDE Spark Job in the CDE Jobs UI
+        job_name='ge_data_quality', #Must match name of CDE Spark Job in the CDE Jobs UI
         trigger_rule='all_success',
         )
 
-iceberg_metadata_step = CDEJobRunOperator(
-        task_id='iceberg-metadata-queries',
-        dag=airflow_dag,
-        job_name='iceberg_metadata_queries-'+username+"-"+cde_demo, #Must match name of CDE Spark Job in the CDE Jobs UI
-        trigger_rule='all_success',
-        )
-
-start >> staging_step >> mergeinto_step >> iceberg_metadata_step
+start >> batch_load_step >> data_quality_step

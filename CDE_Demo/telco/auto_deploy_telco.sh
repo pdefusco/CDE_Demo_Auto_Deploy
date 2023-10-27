@@ -3,10 +3,7 @@
 docker_user=$1
 cde_user=$2
 
-docker_user=pauldefusco
-cde_user=pauldefusco
-
-echo "CDE TELCO DEMO DEPLOYMENT INITIATED...."
+echo "CDE TELCO - GEOSPATIAL DEMO DEPLOYMENT INITIATED...."
 echo "..."
 echo ".."
 echo "."
@@ -29,25 +26,11 @@ cde resource create --name job_code-$cde_user"-telco"
 echo "Upload Job Dependencies to CDE Files Resource"
 cde resource upload --name job_code-$cde_user"-telco" --local-path CDE_Demo/telco/spark/geospatial_joins.py --local-path CDE_Demo/telco/spark/geospatial_rdd.py --local-path CDE_Demo/telco/spark/parameters.conf --local-path CDE_Demo/telco/spark/utils.py
 
-current_date_time=$(date +"%Y-%m-%d %T" )
-
-n=1
-while [ $n -lt 10 ]
-do
-  echo " "
-  echo "Project Setup..."
-  sleep 1
-  echo "....."
-  echo "...."
-  echo "..."
-  echo ".."
-  echo "."
-  ((n=$n+1))
-done
+#current_date_time=$(date +"%Y-%m-%d %T" )
 
 # CREATE CDE JOBS
 echo "Create GEOSPATIAL RDD SPARK JOB"
-cde job create --name geospatial_rdd-$cde_user"-telco" --type spark --mount-1-prefix jobCode/ --mount-1-resource job_code-$cde_user"-telco" --mount-2-prefix countriesData/ --mount-2-resource countries_data-$cde_user"-telco" --runtime-image-resource-name dex-spark-runtime-sedona-geospatial-$cde_user"-telco" --packages org.apache.sedona:sedona-spark-shaded-3.0_2.12:1.5.0,org.datasyslab:geotools-wrapper:1.5.0-28.2 --application-file jobCode/geospatial_rdd.py --schedule-enabled true --schedule-start $current_date_time  --every-minutes 3
+cde job create --name geospatial_rdd-$cde_user"-telco" --type spark --mount-1-prefix jobCode/ --mount-1-resource job_code-$cde_user"-telco" --mount-2-prefix countriesData/ --mount-2-resource countries_data-$cde_user"-telco" --runtime-image-resource-name dex-spark-runtime-sedona-geospatial-$cde_user"-telco" --packages org.apache.sedona:sedona-spark-shaded-3.0_2.12:1.5.0,org.datasyslab:geotools-wrapper:1.5.0-28.2 --application-file jobCode/geospatial_rdd.py
 
 n=1
 while [ $n -lt 10 ]
@@ -59,7 +42,7 @@ do
 done
 
 echo "Create GEOSPATIAL JOINS SPARK JOB"
-cde job create --name geospatial_joins-$cde_user"-telco" --application-file jobCode/geospatial_joins.py --type spark --mount-1-prefix jobCode/ --mount-1-resource job_code-$cde_user"-telco" --mount-2-prefix countriesData/ --mount-2-resource countries_data-$cde_user"-telco" --runtime-image-resource-name dex-spark-runtime-sedona-geospatial-$cde_user"-telco" --packages org.apache.sedona:sedona-spark-shaded-3.0_2.12:1.5.0,org.datasyslab:geotools-wrapper:1.5.0-28.2 --schedule-enabled true --schedule-start $current_date_time  --every-minutes 3
+cde job create --name geospatial_joins-$cde_user"-telco" --application-file jobCode/geospatial_joins.py --type spark --mount-1-prefix jobCode/ --mount-1-resource job_code-$cde_user"-telco" --mount-2-prefix countriesData/ --mount-2-resource countries_data-$cde_user"-telco" --runtime-image-resource-name dex-spark-runtime-sedona-geospatial-$cde_user"-telco" --packages org.apache.sedona:sedona-spark-shaded-3.0_2.12:1.5.0,org.datasyslab:geotools-wrapper:1.5.0-28.2
 
 # RUN CDE JOBS
 #echo "Run GEOSPATIAL RDD SPARK JOB"
