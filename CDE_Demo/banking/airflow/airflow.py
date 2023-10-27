@@ -79,14 +79,14 @@ start = DummyOperator(
 batch_load_step = CDEJobRunOperator(
         task_id='batch-load-banking',
         dag=airflow_dag,
-        job_name='batch_load'+"-"+username+"-"+cde_demo', #Must match name of CDE Spark Job in the CDE Jobs UI
+        job_name='batch_load-'+username+"-"+cde_demo, #Must match name of CDE Spark Job in the CDE Jobs UI
         trigger_rule='all_success',
         )
 
 data_quality_step = CDEJobRunOperator(
         task_id='data-quality-banking',
         dag=airflow_dag,
-        job_name='ge_data_quality'+"-"+username+"-"+cde_demo, #Must match name of CDE Spark Job in the CDE Jobs UI
+        job_name='ge_data_quality-'+username+"-"+cde_demo, #Must match name of CDE Spark Job in the CDE Jobs UI
         trigger_rule='all_success',
         )
 

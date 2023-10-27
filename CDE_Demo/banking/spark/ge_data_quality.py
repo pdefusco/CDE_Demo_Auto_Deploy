@@ -159,7 +159,9 @@ def main():
 
     print("\nRunning as Username: ", username)
 
-    dbname = "CDE_DEMO_{}".format(username)
+    CDE_DEMO = "BNK"
+
+    dbname = "CDE_DEMO_{0}_{1}".format(username, CDE_DEMO)
 
     print("\nUsing DB Name: ", dbname)
 

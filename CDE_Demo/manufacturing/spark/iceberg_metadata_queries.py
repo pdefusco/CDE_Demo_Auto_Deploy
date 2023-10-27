@@ -58,7 +58,9 @@ username=config.get("general","username")
 
 print("\nRunning as Username: ", username)
 
-dbname = "CDE_DEMO_{}".format(username)
+CDE_DEMO = "MFCT"
+
+dbname = "CDE_DEMO_{0}_{1}".format(username, CDE_DEMO)
 
 print("\nUsing DB Name: ", dbname)
 
