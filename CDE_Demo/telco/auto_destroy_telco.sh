@@ -2,7 +2,7 @@
 
 cde_user=$1
 
-echo "TEARDOWN INITIATED...."
+echo "TELCO GEOSPATIAL DEMO TEARDOWN INITIATED...."
 echo "..."
 echo ".."
 echo "."

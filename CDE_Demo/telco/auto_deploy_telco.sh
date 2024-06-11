@@ -39,7 +39,7 @@ echo "Provided CDE User: "$cde_user
 #CREATE DOCKER RUNTIME RESOURCE
 echo "Create CDE Credential docker-creds-"$cde_user"-telco"
 cde credential create --name docker-creds-$cde_user"-telco" --type docker-basic --docker-server hub.docker.com --docker-username $docker_user
-echo "Create CDE Docker Runtime dex-spark-runtime-dbldatagen-"$cde_user"-telco"
+echo "Create CDE Docker Runtime dex-spark-runtime-sedona-geospatial-"$cde_user"-telco"
 cde resource create --name dex-spark-runtime-sedona-geospatial-$cde_user"-telco" --image pauldefusco/dex-spark-runtime-3.2.3-7.2.15.8:1.20.0-b15-sedona-geospatial-003 --image-engine spark3 --type custom-runtime-image
 
 # CREATE FILE RESOURCE

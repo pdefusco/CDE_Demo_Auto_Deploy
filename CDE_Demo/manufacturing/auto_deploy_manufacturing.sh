@@ -50,11 +50,11 @@ cde resource upload --name cde_demo_files-$cde_user"-mfct" --local-path CDE_Demo
 echo "Uploading iceberg_metadata_queries.py to cde_demo_files-"$cde_user"-mfct"
 cde resource upload --name cde_demo_files-$cde_user"-mfct" --local-path CDE_Demo/manufacturing/spark/iceberg_metadata_queries.py
 echo "Creating Spark Job staging_table-"$cde_user"-mfct"
-cde job create --name create_staging_table-$cde_user"-mfct" --type spark --mount-1-resource cde_demo_files-$cde_user"-mfct" --application-file staging_table.py --executor-memory "4g" --executor-cores 4 --runtime-image-resource-name dex-spark-runtime-dbldatagen-$cde_user"-mfct"
+cde job create --name create_staging_table-$cde_user"-mfct" --type spark --mount-1-resource cde_demo_files-$cde_user"-mfct" --application-file staging_table.py --runtime-image-resource-name dex-spark-runtime-dbldatagen-$cde_user"-mfct" --exeuctor-cores 4 --executor-memory "4g"
 echo "Creating Spark Job iceberg_mergeinto-"$cde_user"-mfct"
-cde job create --name iceberg_mergeinto-$cde_user"-mfct" --type spark --mount-1-resource cde_demo_files-$cde_user"-mfct" --application-file iceberg_mergeinto.py --executor-memory "4g" --executor-cores 4
+cde job create --name iceberg_mergeinto-$cde_user"-mfct" --type spark --mount-1-resource cde_demo_files-$cde_user"-mfct" --application-file iceberg_mergeinto.py --exeuctor-cores 4 --executor-memory "4g"
 echo "Creating Spark Job iceberg_metadata_queries-"$cde_user"-mfct"
-cde job create --name iceberg_metadata_queries-$cde_user"-mfct" --type spark --mount-1-resource cde_demo_files-$cde_user"-mfct" --application-file iceberg_metadata_queries.py
+cde job create --name iceberg_metadata_queries-$cde_user"-mfct" --type spark --mount-1-resource cde_demo_files-$cde_user"-mfct" --application-file iceberg_metadata_queries.py --exeuctor-cores 4 --executor-memory "4g"
 
 echo "Creating Airflow File Resource Dependency"
 echo $cde_user >> username.conf
