@@ -16,8 +16,6 @@ This git repository hosts the automation for a CDE Demo that includes Spark, Air
 * [Summary](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#summary)
 * [CDE Relevant Projects](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#cde-relevant-projects)
 
-https://github.com/pdefusco/CDE_121_HOL/blob/main/step_by_step_guides/english/part_00_setup.md#requirements
-
 ## Requirements
 
 To deploy the demo via this automation you need:
