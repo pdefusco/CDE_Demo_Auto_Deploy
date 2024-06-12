@@ -16,96 +16,101 @@ This git repository hosts the automation for a CDE Demo that includes Spark, Air
 * [Summary](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#summary)
 * [CDE Relevant Projects](https://github.com/pdefusco/CDE_Demo_Auto_Deploy#cde-relevant-projects)
 
+
 ## Requirements
 
 To deploy the demo via this automation you need:
 
-* A CDE Virtual Cluster in CDP Public Cloud AWS (Azure coming soon).
-* A working installation of Docker on your local machine and a Dockerhub account. Please have your Dockerhub user and password ready.
+* A CDE Service with version 1.21 in CDP Public Cloud AWS.
+* A CDE Virtual Cluster of type All Purpose with Spark 3.2 and Custom Docker Runtime Entitlement.
+* A working installation of the CDE CLI.
+* A docker account.
 * Basic knowledge of CDE, Python, Airflow, Iceberg and PySpark is recommended but not required. No code changes are required.
 
 
 ## Demo Content
 
-The Demo includes an Airflow DAG orchestrating three Spark Jobs in CDE. The first Spark Job loads fresh data into a staging table. The second Spark Job executes an Iceberg Merge Into into the target table. Finally, the third job performs some basic monitoring queries on Iceberg Metadata.
+This automation contains three demos: "manufacturing", "banking", "telco".
 
-The Airflow Job is designed to run every five minutes independently. At each run new random data is generated, then added to the staging table and finally loaded into the target table. The same target table is used so if left running the demo can show what happens to Iceberg Metadata overtime.
+#### Manufacturing
 
-Before the pipeline is executed, a setup job is launched upon triggering the deployment script. However, this job is not part of the demo track and is automatically removed when the setup is complete.
+This demo includes a three step Spark pipeline which loads a new data batch, performs an Iceberg Merge Into and finally runs Iceberg metadata queries. An Airflow DAG orchestrates the pipeline. Car sales synthetic data is created and loaded incrementally.
 
-When the demo is deployed you will have the following in your CDE Virtual Cluster:
+#### Banking
 
-* Three CDE Spark Jobs: ```staging_table```, ```iceberg_mergeinto```, ```iceberg_metadata_queries```.
-* One CDE Airflow Job: ```airflow_orchestration```.
-* One CDE Files Resource: ```cde_demo_files```.
-* One CDE Docker Runtime Resource: ```dex-spark-runtime-dbldatagen```.
-* The CDE CLI is pre-installed in the Docker container.
+This demo includes a two step Spark pipeline which loads synthetic credit card transaction data and performs data validation with Great Expectations. An Airflow DAG orchestrates the pipeline. This choice is recommended if you want to demo CDE Custom Runtimes.
+
+#### Telco
+
+This demo includes a two step Spark pipeline which loads IOT device geospatial data and performs a Spatial Join and Query with Apache Sedona. An Airflow Dag orchestrates the pipeline. This choice is recommended for geospatial use cases.  
 
 
-## Deployment Instructions
+## Setup
 
-The automation is provided in a Docker container. First, pull the docker container and run it:
+#### Git Repository
 
-```
-docker pull pauldefusco/cde_demo_auto_deploy
-docker run -it pauldefusco/cde_demo_auto_deploy
-```
+Clone the git repository.
 
-You will be automatically logged into the container as ```cdeuser```. Run the remaining commands from the container.
+#### CDE CLI Configuration
 
-Add your CDE Virtual Cluster to the CDE CLI configuration file. To do so, paste your CDE Virtual Cluster's Jobs API URL at line 2.
+Add your CDE Virtual Cluster to the CDE CLI configuration file. To do so, paste your CDE Virtual Cluster's Jobs API URL at line 2. For example:
 
 ```
-vi ~/.cde/config.yaml
+% vi ~/.cde/config.yaml
+
+user: <cdp_workload_username>
+vcluster-endpoint: https://a1b2345.cde-abcdefg.cde-xxx.xxxxx.cloudera.site/dex/api/v1
 ```
 
-Next open the Airflow DAG and edit the username at line 50 by adding your CDP Workload Username.
+#### Add Username to Airflow Dag
+
+The username variable is used to assign an Airflow DAG ID. This has to be unique to each Virtual Cluster.
+
+Open the Airflow DAG and edit the username at line 50 by adding your CDP Workload Username. For example:
 
 ```
-vi ~/CDE_Demo/airflow/airflow_DAG.py
+% vi ~/CDE_Demo/banking/airflow/airflow.py
 ```
 
 <pre>
-# Airflow DAG
-from datetime import datetime, timedelta
-from dateutil import parser
-from airflow import DAG
-from cloudera.cdp.airflow.operators.cde_operator import CDEJobRunOperator
-from airflow.operators.python import PythonOperator
-from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.bash import BashOperator
 from airflow.models.param import Param
 
 <b>username = "cdpworkloaduser"</b> # Enter your workload username here
 </pre>
 
+## Deployment Instructions
+
 #### 1. Important Information
 
 * Each generated Iceberg Table, CDE Job and Resource will be prefixed with your CDP Workload Username.
 * CDP Workload Users with dots, hyphens and other symbols are not currently supported. Please reach out to the Field Specialist team for a workaround.
-* Multiple users can deploy the demo in the same CDE Virtual Cluster as long as they use different credentials.
-* Each user can deploy the demo at most once in the same CDE Virtual Cluster.
-* All Iceberg tables, CDE Jobs and Resources are deleted from the CDE Virtual Cluster upon execution of the "autodestroy.sh" script.
-* Currently Deployment is limited to AWS CDE Services but Azure and Private Cloud will be added soon.
+* Multiple users can deploy the demo in the same CDE Virtual Cluster.
+* Each user can deploy the same demo at most once in the same CDE Virtual Cluster. However, multiple demo options can coexist in the same cluster i.e. all three demos can run concurrently in the same cluster.  
+* All Iceberg tables, CDE Jobs and Resources are deleted from the CDE Virtual Cluster upon execution of the "auto_destroy.sh" script.
+* Currently Deployment is limited to AWS CDE Services.
 * The entire pipeline is executed upon deployment. No jobs need to be manually triggered upon deployment.
-* **Known limitation**: when the pipeline is deployed for the first time the DAG may run twice. Therefore, in the very first run you may see a duplicate job in the Job Runs page.
 
-#### 2. autodeploy.sh
+#### 2. Run auto_deploy.sh
 
-Run the autodeploy script with:
+Run the autodeploy script with the demo parameter according to the demo you want to deploy. The demo parameter can be one of "banking", "manufacturing" and "telco".
 
 ```
-./auto_deploy.sh dockerusername cdpworkloaduser
+./auto_deploy.sh <dockerusername> <cdpworkloaduser> <demo>
 ```
 
-Before running this be prepared to enter your Docker credentials in the terminal. Then, you can follow progress in the terminal output. The pipeline should deploy within three minutes. When setup is complete navigate to the CDE UI and validate that the demo has been deployed. By now the setup_job should have completed and the airflow_orchestration job should already be in process.
+For example:
+
+```
+./auto_deploy.sh pauldefusco pauldefusco manufacturing
+```
 
 #### 3. autodestroy.sh
 
 When you are done run this script to tear down the pipeline:
 
 ```
-./auto_destroy.sh cdpworkloaduser
+./auto_destroy.sh cdpworkloaduser <demo>
 ```
 
 
