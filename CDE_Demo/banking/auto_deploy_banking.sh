@@ -40,4 +40,4 @@ cde job create --name batch-load-$cde_user"-bnk" --arg $cdp_data_lake_storage --
 echo "Create job ge-data-quality-"$cde_user"-bnk"
 cde job create --name ge-data-quality-$cde_user"-bnk" --arg $cdp_data_lake_storage --arg $cde_user --type spark --mount-1-resource files-$cde_user"-bnk" --application-file ge_data_quality.py --runtime-image-resource-name ge-runtime-$cde_user"-bnk" --executor-cores 4 --executor-memory "4g" -v
 echo "Create job data-quality-orch-"$cde_user"-bnk"
-cde job create --name data-quality-orch-$cde_user"-bnk" --type airflow --mount-1-resource files-$cde_user"-bnk" --dag-file airflow.py -v
+cde job create --name data-quality-orch-$cde_user"-bnk" --type airflow --mount-1-resource "files-"$cde_user"-bnk" --dag-file airflow.py -v
