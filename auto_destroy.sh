@@ -3,9 +3,26 @@
 cde_user=$1
 cde_demo=$2
 
-docker_user=${docker_user//[-._]/}
+cde_user=${cde_user//[-._]/}
 
-echo "Provided CDE User: "$cde_user
-echo "Provided CDE Demo: "$cde_demo
+cde_user_formatted=${cde_user//[-._]/}
+d=$(date)
+fmt="%-30s %s\n"
+
+echo "##########################################################"
+printf "${fmt}" "CDE ${cde_demo} demo teardown initiated."
+printf "${fmt}" "demo launch time:" "${d}"
+printf "${fmt}" "performed by CDP User:" "${cde_user_formatted}"
+printf "${fmt}" "performed by Docker User:" "${docker_user}"
+echo "##########################################################"
 
 . CDE_Demo/$cde_demo/auto_destroy_$cde_demo.sh $cde_user
+
+e=$(date)
+
+echo "##########################################################"
+printf "${fmt}" "CDE ${cde_demo} demo teardown completed."
+printf "${fmt}" "demo launch time:" "${e}"
+printf "${fmt}" "performed by CDP User:" "${cde_user_formatted}"
+printf "${fmt}" "performed by Docker User:" "${docker_user}"
+echo "##########################################################"

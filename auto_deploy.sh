@@ -12,8 +12,9 @@ fmt="%-30s %s\n"
 echo "##########################################################"
 printf "${fmt}" "CDE ${cde_demo} demo deployment launched."
 printf "${fmt}" "demo launch time:" "${d}"
-printf "${fmt}" "performed by CDP User:" "${cde_user}"
+printf "${fmt}" "performed by CDP User:" "${cde_user_formatted}"
 printf "${fmt}" "performed by Docker User:" "${docker_user}"
+echo "##########################################################"
 
 
 . CDE_Demo/$cde_demo/auto_deploy_$cde_demo.sh $docker_user $cde_user

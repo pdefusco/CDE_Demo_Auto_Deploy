@@ -42,16 +42,14 @@ from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 from utils import *
 from datetime import datetime
-import sys, random, os, json, random, configparser
+import sys, random, os, json, random
 from sedona.spark import *
 from shapely.geometry import Point
 from shapely.geometry import Polygon
 
 ## CDE PROPERTIES
-config = configparser.ConfigParser()
-config.read('/app/mount/jobCode/parameters.conf')
-data_lake_name=config.get("general","data_lake_name")
-username=config.get("general","username")
+data_lake_name=sys.argv[1]
+username=sys.argv[2]
 
 print("\nRunning as Username: ", username)
 

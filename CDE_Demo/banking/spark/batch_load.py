@@ -46,9 +46,13 @@ import sys, random, os, json, random, configparser
 
 ## CDE PROPERTIES
 config = configparser.ConfigParser()
-config.read('/app/mount/jobCode/parameters.conf')
-data_lake_name=config.get("general","data_lake_name")
-username=config.get("general","username")
+config.read('/app/mount/parameters.conf')
+environmentVar=config.get("general","externalVariable")
+print(environmentVar)
+
+## CDE PROPERTIES
+data_lake_name=sys.argv[1]
+username=sys.argv[2]
 
 print("\nRunning as Username: ", username)
 

@@ -54,8 +54,12 @@ import random
 ## CDE PROPERTIES
 config = configparser.ConfigParser()
 config.read('/app/mount/parameters.conf')
-data_lake_name=config.get("general","data_lake_name")
-username=config.get("general","username")
+environmentVar=config.get("general","externalVariable")
+print(environmentVar)
+
+## CDE PROPERTIES
+data_lake_name=sys.argv[1]
+username=sys.argv[2]
 
 print("\nRunning as Username: ", username)
 

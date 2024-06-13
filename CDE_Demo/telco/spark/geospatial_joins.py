@@ -39,7 +39,6 @@
 
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
-import configparser
 import random, os, sys
 from datetime import datetime
 from sedona.spark import *
@@ -47,10 +46,8 @@ from keplergl import KeplerGl
 from pyspark.sql.functions import col, expr, when
 
 ## CDE PROPERTIES
-config = configparser.ConfigParser()
-config.read('/app/mount/jobCode/parameters.conf')
-data_lake_name=config.get("general","data_lake_name")
-username=config.get("general","username")
+data_lake_name=sys.argv[1]
+username=sys.argv[2]
 
 print("\nRunning as Username: ", username)
 
