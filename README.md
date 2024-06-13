@@ -96,13 +96,13 @@ from airflow.models.param import Param
 Run the autodeploy script with the demo parameter according to the demo you want to deploy. The demo parameter can be one of "banking", "manufacturing" and "telco".
 
 ```
-./auto_deploy.sh <dockerusername> <cdpworkloaduser> <demo>
+./auto_deploy.sh <dockerusername> <cdpworkloaduser> <demo> <cdp-data-lake-storage>
 ```
 
 For example:
 
 ```
-./auto_deploy.sh pauldefusco pauldefusco manufacturing
+./auto_deploy.sh pauldefusco pauldefusco manufacturing s3a://go01-demo
 ```
 
 #### 3. autodestroy.sh

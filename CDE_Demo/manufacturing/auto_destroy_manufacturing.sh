@@ -1,6 +1,7 @@
 #!/bin/sh
 
 cde_user=$1
+cdp_data_lake_storage=$2
 
 #CREATE DOCKER RUNTIME RESOURCE
 
@@ -19,7 +20,7 @@ cde resource delete --name dex-spark-runtime-dbldatagen-$cde_user"-mfct" -v
 echo "Upload teardown script to resource files-"$cde_user"-mfct"
 cde resource upload --name files-$cde_user"-mfct" --local-path CDE_Demo/manufacturing/spark/teardown.py -v
 echo "Create teardown job teardown-"$cde_user"-mfct"
-cde job create --name teardown-$cde_user"-mfct" --arg $data_lake --arg $cde_user --type spark --mount-1-resource files-$cde_user"-mfct" --application-file teardown.py -v
+cde job create --name teardown-$cde_user"-mfct" --arg $cdp_data_lake_storage --arg $cde_user --type spark --mount-1-resource files-$cde_user"-mfct" --application-file teardown.py -v
 echo "Run teardown job teardown-"$cde_user"-mfct"
 cde job run --name teardown-$cde_user"-mfct" -v
 n=1

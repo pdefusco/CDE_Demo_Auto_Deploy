@@ -1,7 +1,7 @@
 #!/bin/sh
 
 cde_user=$1
-data_lake=$2
+cdp_data_lake_storage=$2
 
 #CREATE DOCKER RUNTIME RESOURCE
 
@@ -18,7 +18,7 @@ cde job delete --name geo_orch-$cde_user"-telco" -v
 echo "Upload teardown script to resource cde_demo_files-"$cde_user
 cde resource upload --name app_code-$cde_user"-telco" --local-path CDE_Demo/telco/spark/teardown.py -v
 echo "Create teardown job teardown-"$cde_user"-telco"
-cde job create --name teardown-$cde_user"-telco" --arg $data_lake --arg $cde_user --type spark --mount-1-resource app_code-$cde_user"-telco" --application-file teardown.py -v
+cde job create --name teardown-$cde_user"-telco" --arg $cdp_data_lake_storage --arg $cde_user --type spark --mount-1-resource app_code-$cde_user"-telco" --application-file teardown.py -v
 echo "Run teardown job teardown-"$cde_user"-telco"
 cde job run --name teardown-$cde_user"-telco" -v
 n=1

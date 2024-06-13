@@ -2,6 +2,7 @@
 
 docker_user=$1
 cde_user=$2
+cdp_data_lake_storage=$3
 
 #CREATE DOCKER RUNTIME RESOURCE
 echo "Create CDE Credential dckr-crds-"$cde_user"-mfct"
@@ -55,7 +56,7 @@ cde job create --name create_staging_table-$cde_user"-mfct" --type spark --mount
 echo "Creating Spark Job iceberg_mergeinto-"$cde_user"-mfct"
 cde job create --name iceberg_mergeinto-$cde_user"-mfct" --arg $data_lake --arg $cde_user --type spark --mount-1-resource files-$cde_user"-mfct" --application-file iceberg_mergeinto.py --executor-cores 4 --executor-memory "4g" -v
 echo "Creating Spark Job iceberg_metadata_queries-"$cde_user"-mfct"
-cde job create --name iceberg_metadata_queries-$cde_user"-mfct" --arg $data_lake --arg $cde_user --type spark --mount-1-resource files-$cde_user"-mfct" --application-file iceberg_metadata_queries.py --executor-cores 4 --executor-memory "4g" -v
+cde job create --name iceberg_metadata_queries-$cde_user"-mfct" --arg $cdp_data_lake_storage --arg $cde_user --type spark --mount-1-resource files-$cde_user"-mfct" --application-file iceberg_metadata_queries.py --executor-cores 4 --executor-memory "4g" -v
 
 echo "Creating Airflow File Resource Dependency"
 echo $cde_user >> username.conf
@@ -68,7 +69,7 @@ rm username.conf
 echo "Deleting Airflow Job airflow_orchestration-"$cde_user"-mfct"
 cde job delete --name airflow_orchestration-$cde_user"-mfct" -v
 echo "Creating Airflow Job airflow_orchestration-"$cde_user"-mfct"
-cde job create --name airflow_orchestration-$cde_user"-mfct" --arg $data_lake --arg $cde_user --type airflow --mount-1-resource files-$cde_user"-mfct" --airflow-file-mount-1-resource cde_airflow_files-$cde_user"-mfct"  --dag-file airflow_DAG.py -v
+cde job create --name airflow_orchestration-$cde_user"-mfct" --arg $cdp_data_lake_storage --arg $cde_user --type airflow --mount-1-resource files-$cde_user"-mfct" --airflow-file-mount-1-resource cde_airflow_files-$cde_user"-mfct"  --dag-file airflow_DAG.py -v
 
 # DELETE SETUP JOB
 echo "Delete Spark Job table_setup-"$cde_user"-mfct"
