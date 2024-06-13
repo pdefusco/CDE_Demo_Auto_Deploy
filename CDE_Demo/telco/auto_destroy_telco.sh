@@ -2,12 +2,6 @@
 
 cde_user=$1
 
-echo "TELCO GEOSPATIAL DEMO TEARDOWN INITIATED...."
-echo "..."
-echo ".."
-echo "."
-echo "Provided CDE User: "$cde_user
-
 #CREATE DOCKER RUNTIME RESOURCE
 
 cde credential delete --name docker-creds-$cde_user"-telco"
@@ -42,8 +36,3 @@ echo "Delete resource countries_data-"$cde_user"-telco"
 cde resource delete --name countries_data-$cde_user"-telco"
 echo "Delete Custom Docker Runtime dex-spark-runtime-sedona-geospatial-$cde_user-telco"
 cde resource delete --name dex-spark-runtime-sedona-geospatial-$cde_user"-telco"
-
-echo "."
-echo ".."
-echo "..."
-echo "....TEARDOWN COMPLETED"
