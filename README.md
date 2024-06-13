@@ -105,7 +105,7 @@ For example:
 ./auto_deploy.sh pauldefusco pauldefusco manufacturing s3a://go01-demo
 ```
 
-#### 3. autodestroy.sh
+#### 3. Run autodestroy.sh
 
 When you are done run this script to tear down the pipeline:
 
