@@ -3,8 +3,9 @@
 cde_user=$1
 cdp_data_lake_storage=$2
 
-#CREATE DOCKER RUNTIME RESOURCE
-
+echo "##########################################################"
+echo "CREATE DOCKER RUNTIME RESOURCE"
+echo "##########################################################"
 cde credential delete --name dckr-crds-$cde_user"-mfct" -v
 echo "Delete Jobs"
 echo "Delete create_staging_table-"$cde_user"-mfct"
@@ -23,6 +24,9 @@ echo "Create teardown job teardown-"$cde_user"-mfct"
 cde job create --name teardown-$cde_user"-mfct" --arg $cdp_data_lake_storage --arg $cde_user --type spark --mount-1-resource files-$cde_user"-mfct" --application-file teardown.py -v
 echo "Run teardown job teardown-"$cde_user"-mfct"
 cde job run --name teardown-$cde_user"-mfct" -v
+echo "##########################################################"
+echo "RUN TEARDOWN JOB"
+echo "##########################################################"
 n=1
 while [ $n -lt 50 ]
 do

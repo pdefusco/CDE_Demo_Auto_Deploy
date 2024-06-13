@@ -4,13 +4,17 @@ docker_user=$1
 cde_user=$2
 cdp_data_lake_storage=$3
 
-#CREATE DOCKER RUNTIME RESOURCE
+echo "##########################################################"
+echo "CREATE DOCKER RUNTIME"
+echo "##########################################################"
 echo "Create CDE Credential dckr-crds-"$cde_user"-mfct"
 cde credential create --name dckr-crds-$cde_user"-mfct" --type docker-basic --docker-server hub.docker.com --docker-username $docker_user -v
 echo "Create CDE Docker Runtime datagen-runtime-"$cde_user"-mfct"
 cde resource create --name datagen-runtime-$cde_user"-mfct" --image pauldefusco/dex-spark-runtime-3.2.3-7.2.15.8:1.20.0-b15-dbldatagen-002 --image-engine spark3 --type custom-runtime-image -v
 
-# CREATE FILE RESOURCE
+echo "##########################################################"
+echo "CREATE FILES RESOURCES"
+echo "##########################################################"
 echo "Create Resource files-"$cde_user"-mfct"
 cde resource create --name files-$cde_user"-mfct" -v
 echo "Upload utils.py to files-"$cde_user"-mfct"
@@ -18,7 +22,9 @@ cde resource upload --name files-$cde_user"-mfct" --local-path CDE_Resources/CDE
 echo "Upload parameters.conf to files-"$cde_user"-mfct"
 cde resource upload --name files-$cde_user"-mfct" --local-path CDE_Resources/CDE_Files/parameters.conf -v
 
-# CREATE SETUP JOB
+echo "##########################################################"
+echo "CREATE SETUP JOB"
+echo "##########################################################"
 echo "Upload table_setup.py to files-"$cde_user"-mfct"
 cde resource upload --name files-$cde_user"-mfct" --local-path CDE_Demo/manufacturing/spark/table_setup.py -v
 echo "Create job table_setup-"$cde_user"-mfct"
@@ -34,7 +40,10 @@ do
   ((n=$n+1))
 done
 
-# CREATE STAGING AND MERGE INTO JOBS WITH ORCH DAG AND RUN ORCH DAG
+echo "##########################################################"
+echo "CREATE SPARK AND AIRFLOW JOBS"
+echo "##########################################################"
+#
 echo "Deleting resource files-"$cde_user"-mfct"
 cde resource delete --name files-$cde_user"-mfct" -v
 echo "Deleting job staging_table-"$cde_user"-mfct"

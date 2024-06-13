@@ -3,11 +3,15 @@
 cde_user=$1
 cdp_data_lake_storage=$2
 
-#CREATE DOCKER RUNTIME RESOURCE
-
+echo "##########################################################"
+echo "CREATE DOCKER RUNTIME RESOURCE"
+echo "##########################################################"
 echo "Delete Docker Credentials"
 cde credential delete --name dckr-crds-$cde_user"-telco" -v
 
+echo "##########################################################"
+echo "DELETE SPARK JOBS"
+echo "##########################################################"
 echo "Delete geospatial_rdd-"$cde_user"-telco"
 cde job delete --name geospatial_rdd-$cde_user"-telco" -v
 echo "Delete create_staging_table-"$cde_user"-telco"
@@ -21,6 +25,9 @@ echo "Create teardown job teardown-"$cde_user"-telco"
 cde job create --name teardown-$cde_user"-telco" --arg $cdp_data_lake_storage --arg $cde_user --type spark --mount-1-resource app_code-$cde_user"-telco" --application-file teardown.py -v
 echo "Run teardown job teardown-"$cde_user"-telco"
 cde job run --name teardown-$cde_user"-telco" -v
+echo "##########################################################"
+echo "RUN TEARDOWN JOB"
+echo "##########################################################"
 n=1
 while [ $n -lt 20 ]
 do

@@ -4,8 +4,6 @@ cde_user=$1
 cde_demo=$2
 cdp_data_lake_storage=$3
 
-cde_user=${cde_user//[-._]/}
-
 cde_user_formatted=${cde_user//[-._]/}
 d=$(date)
 fmt="%-30s %s\n"
