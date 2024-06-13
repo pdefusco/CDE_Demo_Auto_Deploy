@@ -35,9 +35,9 @@ cde resource upload --name files-$cde_user"-bnk" --local-path CDE_Demo/banking/a
 echo "##########################################################"
 echo "CREATE SPARK JOBS"
 echo "##########################################################"
-echo "Create job batch_load-"$cde_user"-bnk"
-cde job create --name batch_load-$cde_user"-bnk" --arg $cdp_data_lake_storage --arg $cde_user --type spark --mount-1-prefix jobCode/ --mount-1-resource files-$cde_user"-bnk" --application-file jobCode/batch_load.py --runtime-image-resource-name ge-runtime-$cde_user"-bnk" --executor-cores 4 --executor-memory "4g" -v
-echo "Create job ge_data_quality-"$cde_user"-bnk"
-cde job create --name ge_data_quality-$cde_user"-bnk" --arg $cdp_data_lake_storage --arg $cde_user --type spark --mount-1-resource files-$cde_user"-bnk" --application-file ge_data_quality.py --runtime-image-resource-name ge-runtime-$cde_user"-bnk" --executor-cores 4 --executor-memory "4g" -v
-echo "Create job data_quality_orch-"$cde_user"-bnk"
-cde job create --name data_quality_orch-$cde_user"-bnk" --arg $cdp_data_lake_storage --arg $cde_user --type airflow --mount-1-resource files-$cde_user"-bnk" --dag-file airflow.py -v
+echo "Create job batch-load-"$cde_user"-bnk"
+cde job create --name batch-load-$cde_user"-bnk" --arg $cdp_data_lake_storage --arg $cde_user --type spark --mount-1-prefix jobCode/ --mount-1-resource files-$cde_user"-bnk" --application-file jobCode/batch_load.py --runtime-image-resource-name ge-runtime-$cde_user"-bnk" --executor-cores 4 --executor-memory "4g" -v
+echo "Create job ge-data-quality-"$cde_user"-bnk"
+cde job create --name ge-data-quality-$cde_user"-bnk" --arg $cdp_data_lake_storage --arg $cde_user --type spark --mount-1-resource files-$cde_user"-bnk" --application-file ge_data_quality.py --runtime-image-resource-name ge-runtime-$cde_user"-bnk" --executor-cores 4 --executor-memory "4g" -v
+echo "Create job data-quality-orch-"$cde_user"-bnk"
+cde job create --name data-quality-orch-$cde_user"-bnk" --type airflow --mount-1-resource files-$cde_user"-bnk" --dag-file airflow.py -v

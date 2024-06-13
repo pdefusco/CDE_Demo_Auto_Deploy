@@ -10,11 +10,11 @@ echo "##########################################################"
 echo "Delete CDE Credentials for User: "$cde_user
 cde credential delete --name dckr-crds-$cde_user"-bnk"
 echo "Delete batch_load-"$cde_user"-bnk"
-cde job delete --name batch_load-$cde_user"-bnk"
+cde job delete --name batch-load-$cde_user"-bnk"
 echo "Delete ge_data_quality-"$cde_user"-bnk"
-cde job delete --name ge_data_quality-$cde_user"-bnk"
+cde job delete --name ge-data-quality-$cde_user"-bnk"
 echo "Delete data_quality_orchestration-"$cde_user"-bnk"
-cde job delete --name data_quality_orch-$cde_user"-bnk"
+cde job delete --name data-quality-orch-$cde_user"-bnk"
 
 echo "##########################################################"
 echo "DELETE FILES RESOURCES"
@@ -28,14 +28,29 @@ cde job create --name teardown-$cde_user"-bnk" --arg $cdp_data_lake_storage --ar
 echo "Run teardown job teardown-"$cde_user"-bnk"
 cde job run --name teardown-$cde_user"-bnk"
 
-n=1
-while [ $n -lt 50 ]
-do
-  echo "Running teardown Job..."
-  sleep 2
-  echo " "
-  ((n=$n+1))
-done
+function loading_icon() {
+    local load_interval="${1}"
+    local loading_message="${2}"
+    local elapsed=0
+    local loading_animation=( '—' "\\" '|' '/' )
+
+    echo -n "${loading_message} "
+
+    # This part is to make the cursor not blink
+    # on top of the animation while it lasts
+    tput civis
+    trap "tput cnorm" EXIT
+    while [ "${load_interval}" -ne "${elapsed}" ]; do
+        for frame in "${loading_animation[@]}" ; do
+            printf "%s\b" "${frame}"
+            sleep 0.10
+        done
+        elapsed=$(( elapsed + 1 ))
+    done
+    printf " \b\n"
+}
+
+loading_icon 60 "Teardown in progress"
 
 
 echo "##########################################################"

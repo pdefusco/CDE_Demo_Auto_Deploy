@@ -102,7 +102,7 @@ Run the autodeploy script with the demo parameter according to the demo you want
 For example:
 
 ```
-./auto_deploy.sh pauldefusco pauldefusco manufacturing s3a://go01-demo
+./auto_deploy.sh pauldefusco pauldefusco manufacturing s3a://go01-demo/
 ```
 
 #### 3. Run autodestroy.sh
@@ -110,7 +110,7 @@ For example:
 When you are done run this script to tear down the pipeline:
 
 ```
-./auto_destroy.sh cdpworkloaduser <demo>
+./auto_destroy.sh cdpworkloaduser <demo> <cdp-data-lake-storage>
 ```
 
 
