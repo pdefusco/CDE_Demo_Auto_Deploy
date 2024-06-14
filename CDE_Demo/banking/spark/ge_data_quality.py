@@ -39,9 +39,6 @@
 
 import os
 import sys
-print("Python version:")
-print(sys.version)
-
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
 import pyspark.sql.functions as F
@@ -153,9 +150,13 @@ def main():
 
     ## CDE PROPERTIES
     config = configparser.ConfigParser()
-    config.read('/app/mount/parameters.conf')
-    data_lake_name=config.get("general","data_lake_name")
-    username=config.get("general","username")
+    config.read('/app/mount/app_code/parameters.conf')
+    environmentVar=config.get("general","externalVariable")
+    print(environmentVar)
+
+    ## CDE PROPERTIES
+    data_lake_name=sys.argv[1]
+    username=sys.argv[2]
 
     print("\nRunning as Username: ", username)
 

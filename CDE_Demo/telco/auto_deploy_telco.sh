@@ -1,8 +1,8 @@
 #!/bin/sh
 
 docker_user=$1
-cde_user=$2
-cdp_data_lake_storage=$3
+cdp_data_lake_storage=$2
+cde_user=$3
 
 echo "##########################################################"
 echo "CREATE DOCKER RUNTIME RESOURCE"
@@ -27,17 +27,24 @@ cde resource upload --name app-code-$cde_user"-telco" --local-path CDE_Demo/telc
 echo "##########################################################"
 echo "CREATE SPARK AND AIRFLOW JOBS"
 echo "##########################################################"
-echo "Create GEOSPATIAL RDD SPARK JOB"
-cde job create --name geospatial-rdd-$cde_user"-telco" --arg $cdp_data_lake_storage --arg $cde_user --type spark --mount-1-prefix appCode/ --mount-1-resource app_code-$cde_user"-telco" --mount-2-prefix countriesData/ --mount-2-resource countries-data-$cde_user"-telco" --runtime-image-resource-name sedona-runtime-$cde_user"-telco" --packages org.apache.sedona:sedona-spark-shaded-3.0_2.12:1.5.0,org.datasyslab:geotools-wrapper:1.5.0-28.2 --application-file appCode/geospatial_rdd.py -v
+echo "Delete job geospatial-rdd-"$cde_user"-telco"
+cde job delete --name geospatial-rdd-$cde_user"-telco"
+echo "Delete job geospatial-joins-"$cde_user"-telco"
+cde job delete --name geospatial-joins-$cde_user"-telco"
+echo "Create job geospatial-rdd-"$cde_user"-telco"
+cde job create --name geospatial-rdd-$cde_user"-telco" --arg $cdp_data_lake_storage --arg $cde_user --type spark --mount-1-prefix appCode/ --mount-1-resource app-code-$cde_user"-telco" --mount-2-prefix countriesData/ --mount-2-resource countries-data-$cde_user"-telco" --runtime-image-resource-name sedona-runtime-$cde_user"-telco" --packages org.apache.sedona:sedona-spark-shaded-3.0_2.12:1.5.0,org.datasyslab:geotools-wrapper:1.5.0-28.2 --application-file appCode/geospatial_rdd.py -v
 
 #echo "Run GEOSPATIAL RDD SPARK JOB"
 #cde job run --name geospatial_rdd-$cde_user"-telco" --executor-cores 2 --executor-memory "4g"
 
 # CREATE CDE JOBS
-echo "Create GEOSPATIAL JOINS SPARK JOB"
+echo "Create job geospatial-joins-"$cde_user"-telco"
 cde job create --name geospatial-joins-$cde_user"-telco" --arg $cdp_data_lake_storage --arg $cde_user --type spark --mount-1-prefix appCode/ --mount-1-resource app-code-$cde_user"-telco" --mount-2-prefix countriesData/ --mount-2-resource countries-data-$cde_user"-telco" --runtime-image-resource-name sedona-runtime-$cde_user"-telco" --packages org.apache.sedona:sedona-spark-shaded-3.0_2.12:1.5.0,org.datasyslab:geotools-wrapper:1.5.0-28.2 --application-file appCode/geospatial_joins.py -v
 
 #echo "RUN GEOSPATIAL JOINS SPARK JOB"
 #cde job run --name geospatial_joins-$cde_user"-telco" --executor-cores 2 --executor-memory "4g"
-echo "Create GEOSPATIAL AIRFLOW ORCHESTRATION JOB"
+echo "Delete job geo-orch-"$cde_user"-telco"
+cde job delete --name geo-orch-$cde_user"-telco"
+
+echo "Create job geo-orch-"$cde_user"-telco"
 cde job create --name geo-orch-$cde_user"-telco" --type airflow --mount-1-prefix appCode/ --mount-1-resource app-code-$cde_user"-telco" --dag-file airflow.py -v

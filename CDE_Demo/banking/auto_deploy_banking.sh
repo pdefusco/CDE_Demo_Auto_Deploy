@@ -1,8 +1,8 @@
 #!/bin/sh
 
 docker_user=$1
-cde_user=$2
-cdp_data_lake_storage=$3
+cdp_data_lake_storage=$2
+cde_user=$3
 
 echo "##########################################################"
 echo "CREATE DOCKER RUNTIME RESOURCE"
@@ -18,9 +18,7 @@ echo "CREATE FILES RESOURCE"
 echo "##########################################################"echo "Create Resource files-"$cde_user"-bnk"
 cde resource create --name files-$cde_user"-bnk" -v
 echo "Upload utils.py to files-"$cde_user"-bnk"
-cde resource upload --name files-$cde_user"-bnk" --local-path CDE_Demo/banking/spark/utils.py -v
-echo "Upload parameters.conf to files-"$cde_user"-bnk"
-cde resource upload --name files-$cde_user"-bnk" --local-path CDE_Resources/CDE_Files/parameters.conf -v
+cde resource upload --name files-$cde_user"-bnk" --local-path CDE_Demo/banking/spark/utils.py --local-path CDE_Resources/CDE_Files/parameters.conf -v
 
 echo "##########################################################"
 echo "UPLOAD FILES RESOURCES"
@@ -35,9 +33,15 @@ cde resource upload --name files-$cde_user"-bnk" --local-path CDE_Demo/banking/a
 echo "##########################################################"
 echo "CREATE SPARK JOBS"
 echo "##########################################################"
+echo "Delete job batch-load-"$cde_user"-bnk"
+cde job delete --name batch-load-$cde_user"-bnk"
+echo "Delete job ge-data-quality-"$cde_user"-bnk"
+cde job delete --name ge-data-quality-$cde_user"-bnk"
+echo "Delete job data-quality-orch-"$cde_user"-bnk"
+cde job delete --name data-quality-orch-$cde_user"-bnk"
 echo "Create job batch-load-"$cde_user"-bnk"
-cde job create --name batch-load-$cde_user"-bnk" --arg $cdp_data_lake_storage --arg $cde_user --type spark --mount-1-prefix jobCode/ --mount-1-resource files-$cde_user"-bnk" --application-file jobCode/batch_load.py --runtime-image-resource-name ge-runtime-$cde_user"-bnk" --executor-cores 4 --executor-memory "4g" -v
+cde job create --name batch-load-$cde_user"-bnk" --arg $cdp_data_lake_storage --arg $cde_user --type spark --mount-1-prefix app_code/ --mount-1-resource files-$cde_user"-bnk" --application-file app_code/batch_load.py --runtime-image-resource-name ge-runtime-$cde_user"-bnk" --executor-cores 4 --executor-memory "4g" -v
 echo "Create job ge-data-quality-"$cde_user"-bnk"
-cde job create --name ge-data-quality-$cde_user"-bnk" --arg $cdp_data_lake_storage --arg $cde_user --type spark --mount-1-resource files-$cde_user"-bnk" --application-file ge_data_quality.py --runtime-image-resource-name ge-runtime-$cde_user"-bnk" --executor-cores 4 --executor-memory "4g" -v
+cde job create --name ge-data-quality-$cde_user"-bnk" --arg $cdp_data_lake_storage --arg $cde_user --type spark --mount-1-prefix app_code/ --mount-1-resource files-$cde_user"-bnk" --application-file app_code/ge_data_quality.py --runtime-image-resource-name ge-runtime-$cde_user"-bnk" --executor-cores 4 --executor-memory "4g" -v
 echo "Create job data-quality-orch-"$cde_user"-bnk"
 cde job create --name data-quality-orch-$cde_user"-bnk" --type airflow --mount-1-resource "files-"$cde_user"-bnk" --dag-file airflow.py -v

@@ -1,7 +1,7 @@
 #!/bin/sh
 
-cde_user=$1
-cdp_data_lake_storage=$2
+cdp_data_lake_storage=$1
+cde_user=$2
 
 echo "##########################################################"
 echo "CREATE DOCKER RUNTIME RESOURCE"
@@ -12,10 +12,10 @@ echo "Delete create_staging_table-"$cde_user"-mfct"
 cde job delete --name create-staging-table-$cde_user"-mfct" -v
 echo "Delete iceberg-mergeinto-"$cde_user"-mfct"
 cde job delete --name iceberg-mergeinto-$cde_user"-mfct" -v
-echo "Delete airflow-orchestration-"$cde_user"-mfct"
-cde job delete --name airflow-orchestration-$cde_user"-mfct" -v
 echo "Delete iceberg-metadata-queries-"$cde_user"-mfct"
 cde job delete --name iceberg-metadata-queries-$cde_user"-mfct" -v
+echo "Delete airflow-orchestration-"$cde_user"-mfct"
+cde job delete --name airflow-orchestration-$cde_user"-mfct" -v
 echo "Delete resosurce datagen-runtime-"$cde_user"-mfct"
 cde resource delete --name datagen-runtime-$cde_user"-mfct" -v
 echo "Upload teardown script to resource files-"$cde_user"-mfct"

@@ -1,7 +1,7 @@
 #!/bin/sh
 
-cde_user=$1
-cdp_data_lake_storage=$2
+cdp_data_lake_storage=$1
+cde_user=$2
 
 echo "##########################################################"
 echo "CREATE DOCKER RUNTIME RESOURCE"

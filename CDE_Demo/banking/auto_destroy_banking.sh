@@ -1,8 +1,7 @@
 #!/bin/sh
 
-cde_user=$1
-cdp_data_lake_storage=$2
-
+cdp_data_lake_storage=$1
+cde_user=$2
 
 echo "##########################################################"
 echo "DELETE DOCKER CREDS AND SPARK JOBS"
@@ -22,7 +21,7 @@ echo "##########################################################"
 echo "Delete resosurce ge-runtime-"$cde_user"-bnk"
 cde resource delete --name ge-runtime-$cde_user"-bnk"
 echo "Upload teardown script to resource files-"$cde_user"-bnk"
-cde resource upload --name files-$cde_user"-bnk" --local-path CDE_Demo/bnk/spark/teardown.py
+cde resource upload --name files-$cde_user"-bnk" --local-path CDE_Demo/banking/spark/teardown.py
 echo "Create teardown job teardown-"$cde_user"-bnk"
 cde job create --name teardown-$cde_user"-bnk" --arg $cdp_data_lake_storage --arg $cde_user --type spark --mount-1-resource "files-"$cde_user"-bnk" --application-file teardown.py
 echo "Run teardown job teardown-"$cde_user"-bnk"

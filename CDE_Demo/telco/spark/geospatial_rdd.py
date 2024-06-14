@@ -118,7 +118,7 @@ print("CREATING COUNTRIES DF FROM RDD \n")
 print("\n")
 
 countries_df = Adapter.toDf(countries_rdd, sedona)
-countries_df.printSchema()
+#countries_df.printSchema()
 
 print("SAVING COUNTRIES DF TO GEOPARQUET \n")
 print("\n")

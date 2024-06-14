@@ -58,7 +58,7 @@ default_args = {
         'start_date': datetime(2023,1,1,1),
         'depends_on_past': False,
         'retries':1,
-        'schedule_interval':'*/5 * * * *', #timedelta(minutes=5)
+        'schedule_interval':'*/8 * * * *', #timedelta(minutes=5)
         'retry_delay': timedelta(minutes=15),
         'end_date': datetime(2025,1,1,1)
         }
@@ -67,7 +67,7 @@ airflow_dag = DAG(
         dag_name,
         default_args=default_args,
         catchup=False,
-        schedule_interval='*/5 * * * *',
+        schedule_interval='*/8 * * * *',
         is_paused_upon_creation=False
         )
 

@@ -46,7 +46,7 @@ import sys, random, os, json, random, configparser
 
 ## CDE PROPERTIES
 config = configparser.ConfigParser()
-config.read('/app/mount/parameters.conf')
+config.read('/app/mount/app_code/parameters.conf')
 environmentVar=config.get("general","externalVariable")
 print(environmentVar)
 
