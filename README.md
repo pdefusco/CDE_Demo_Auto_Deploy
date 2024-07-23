@@ -96,7 +96,7 @@ from airflow.models.param import Param
 Run the autodeploy script with the demo parameter according to the demo you want to deploy. The demo parameter can be one of "banking", "manufacturing" and "telco".
 
 ```
-./deploy.sh <dockerusername> <cdpworkloaduser> <demo> <cdp-data-lake-storage>
+./deploy.sh <dockerusername> <cdpworkloaduser> <cdp-data-lake-storage> <demo>
 ```
 
 For example:
@@ -113,7 +113,12 @@ When you are done run this script to tear down the pipeline:
 ./teardown.sh cdpworkloaduser <cdp-data-lake-storage> <demo>
 ```
 
-./teardown.sh pauldefusco manufacturing s3a://goes-se-sandbox01/data/pdefusco/
+For example:
+
+```
+./teardown.sh pauldefusco s3a://goes-se-sandbox01/data/pdefusco/ manufacturing
+```
+
 
 ## Summary
 
