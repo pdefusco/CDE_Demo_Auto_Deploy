@@ -16,7 +16,7 @@ printf "${fmt}" "performed by CDP User:" "${cde_user_formatted}"
 printf "${fmt}" "performed by Docker User:" "${docker_user}"
 echo "##########################################################"
 
-. CDE_Demo/$cde_demo/auto_deploy_$cde_demo.sh $docker_user $cdp_data_lake_storage $cde_user
+. CDE_Demo/$cde_demo/auto_deploy_${cde_demo}.sh $docker_user $cdp_data_lake_storage $cde_user
 
 e=$(date)
 
