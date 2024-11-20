@@ -174,10 +174,6 @@ def main():
     spark = SparkSession \
         .builder \
         .appName("BANK TRANSACTIONS DATA QUALITY") \
-        .config("spark.sql.catalog.spark_catalog", "org.apache.iceberg.spark.SparkSessionCatalog")\
-        .config("spark.sql.catalog.spark_catalog.type", "hive")\
-        .config("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")\
-        .config("spark.kubernetes.access.hadoopFileSystems", data_lake_name)\
         .getOrCreate()
 
     df = spark.sql("SELECT * FROM {0}.BANKING_TRANSACTIONS_{1}".format(dbname, username))
